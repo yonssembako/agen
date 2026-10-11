@@ -12,7 +12,7 @@
 // 1. KONFIGURASI DAN STATE APLIKASI
 // ============================================================
 
-const API_URL = 'TEMPEL_URL_WEB_APP_APPS_SCRIPT_DI_SINI';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyJ16xWIio6nqT9lYm5tdmGlURRpi3vc-34QWQkptULY8XKp0tZb69AVt1I0C3xo8Iz-w/exec';
 
 const $ = (id) => document.getElementById(id);
 
