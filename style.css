@@ -1,0 +1,676 @@
+/* ========================================
+   1. VARIABEL WARNA
+======================================== */
+:root {
+    --ink: #263238;
+    --blue: #079fe0;
+    --line: #cbd3d7;
+    --muted: #66757b;
+    --paper: #fff;
+    --bg: #f3f6f7;
+    --green: #17834b;
+    --red: #b93838;
+}
+
+
+/* ========================================
+   2. RESET DAN PENGATURAN DASAR
+======================================== */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+}
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+    border: 1px solid #9da9ad;
+    border-radius: 5px;
+    padding: 10px 16px;
+    background: white;
+    color: var(--ink);
+}
+
+button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+
+/* ========================================
+   3. KELAS UTILITAS
+======================================== */
+.primary {
+    background: var(--blue);
+    border-color: #078bc4;
+    color: #092f3d;
+    font-weight: 600;
+}
+
+.secondary {
+    background: #fff;
+}
+
+.quiet {
+    border: 0;
+    background: transparent;
+}
+
+.full {
+    width: 100%;
+}
+
+.hidden {
+    display: none !important;
+}
+
+
+/* ========================================
+   4. HALAMAN LOGIN
+======================================== */
+.login-wrap {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #eef8fc, #fff);
+}
+
+.login-card {
+    width: min(420px, 100%);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 32px;
+    box-shadow: 0 10px 36px #20343b12;
+}
+
+.brand-mark {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--blue);
+    font-weight: 800;
+    font-size: 20px;
+}
+
+.login-card h1 {
+    font-size: 32px;
+    letter-spacing: 2px;
+    margin: 18px 0 5px;
+}
+
+.login-card p,
+.muted,
+.hint {
+    color: var(--muted);
+}
+
+label {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    font-weight: 600;
+    margin: 12px 0;
+}
+
+.login-card input,
+.form-grid input,
+.form-grid select,
+.totals input,
+.filters input,
+.filters select {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #aeb9bd;
+    border-radius: 4px;
+    background: #fff;
+    color: var(--ink);
+}
+
+.login-card button {
+    margin-top: 10px;
+}
+
+
+/* ========================================
+   5. HEADER DAN BANNER
+======================================== */
+.topbar {
+    padding: 22px clamp(16px, 4vw, 48px) 12px;
+    background: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.brand {
+    font-size: clamp(28px, 4vw, 46px);
+    letter-spacing: 1px;
+    font-weight: 500;
+}
+
+.address {
+    font-size: 12px;
+    color: #4f5c60;
+    margin-top: 5px;
+}
+
+.banner {
+    margin: 0 clamp(16px, 4vw, 48px);
+    height: 95px;
+    border: 1px solid #aab4b7;
+    background: linear-gradient(110deg, #f4fafc, #e8f7fc, #fff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4e737e;
+    font-size: clamp(15px, 2vw, 24px);
+    text-align: center;
+}
+
+
+/* ========================================
+   6. NAVIGASI DAN HALAMAN
+======================================== */
+.tabs {
+    display: flex;
+    gap: 8px;
+    padding: 22px clamp(16px, 5vw, 60px);
+    flex-wrap: wrap;
+}
+
+.tab {
+    min-width: 150px;
+    padding: 12px 24px;
+    font-size: 20px;
+    border: 1px solid #68777c;
+    border-radius: 0;
+}
+
+.tab.active {
+    background: var(--blue);
+    border-color: #087ca8;
+}
+
+.page {
+    padding: 10px clamp(16px, 4vw, 48px) 35px;
+    max-width: 1400px;
+    margin: auto;
+}
+
+h2 {
+    font-size: 25px;
+    margin: 8px 0;
+}
+
+h3 {
+    margin: 0 0 15px;
+}
+
+.section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.section-head p {
+    margin: 5px 0;
+    color: var(--muted);
+}
+
+
+/* ========================================
+   7. DAFTAR PRODUK
+======================================== */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.product-card,
+.panel,
+.metric {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 18px;
+}
+
+.product-card h3 {
+    margin: 0 0 8px;
+    font-size: 18px;
+}
+
+.product-card p {
+    margin: 5px 0;
+    color: var(--muted);
+}
+
+.product-card .price {
+    font-weight: 700;
+    font-size: 18px;
+    color: #087eaf;
+    margin-top: 12px;
+}
+
+.stock {
+    font-size: 12px;
+    padding: 4px 8px;
+    background: #eef5f6;
+    border-radius: 20px;
+    display: inline-block;
+}
+
+
+/* ========================================
+   8. HALAMAN KASIR
+======================================== */
+.checkout-layout {
+    display: grid;
+    grid-template-columns: minmax(260px, 0.9fr) minmax(400px, 1.5fr);
+    gap: 18px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 14px;
+}
+
+.form-grid .wide {
+    grid-column: 1 / -1;
+}
+
+.align-end {
+    display: flex;
+    align-items: end;
+    padding-bottom: 12px;
+}
+
+.align-end button {
+    width: 100%;
+}
+
+.hint {
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+
+/* ========================================
+   9. TABEL TRANSAKSI
+======================================== */
+.table-scroll {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 540px;
+}
+
+th,
+td {
+    text-align: left;
+    padding: 11px 8px;
+    border-bottom: 1px solid #e2e7e9;
+    white-space: nowrap;
+}
+
+th {
+    font-weight: 600;
+    color: #58676c;
+}
+
+td button {
+    padding: 4px 8px;
+    color: var(--red);
+}
+
+.empty {
+    text-align: center;
+    color: var(--muted);
+    padding: 25px;
+}
+
+
+/* ========================================
+   10. TOTAL DAN PEMBAYARAN
+======================================== */
+.totals {
+    margin-left: auto;
+    max-width: 320px;
+    padding-top: 18px;
+}
+
+.totals > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    margin: 10px 0;
+}
+
+.totals strong {
+    font-size: 18px;
+}
+
+.totals label {
+    margin: 12px 0;
+}
+
+
+/* ========================================
+   11. FILTER DASHBOARD
+======================================== */
+.filters {
+    display: flex;
+    align-items: end;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.filters label {
+    min-width: 150px;
+}
+
+
+/* ========================================
+   12. KARTU STATISTIK
+======================================== */
+.metrics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.metric {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.metric span,
+.metric small {
+    color: var(--muted);
+}
+
+.metric strong {
+    font-size: clamp(18px, 2vw, 25px);
+    overflow-wrap: anywhere;
+}
+
+.metric small {
+    font-size: 12px;
+}
+
+
+/* ========================================
+   13. PROGRES TARGET OMZET
+======================================== */
+.progress-panel {
+    margin-bottom: 18px;
+}
+
+.progress-track {
+    height: 18px;
+    border-radius: 20px;
+    background: #e5ecef;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0;
+    background: var(--blue);
+    transition: width 0.25s;
+}
+
+.progress-labels {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 9px;
+    font-size: 13px;
+}
+
+.comparison {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #e1e7e9;
+}
+
+.comparison > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+
+/* ========================================
+   14. GRAFIK PENJUALAN
+======================================== */
+.bars {
+    display: flex;
+    align-items: end;
+    gap: 8px;
+    min-height: 160px;
+    overflow-x: auto;
+    padding: 12px 0;
+}
+
+.bar-col {
+    min-width: 42px;
+    flex: 1;
+    text-align: center;
+    font-size: 11px;
+    color: var(--muted);
+}
+
+.bar {
+    min-height: 2px;
+    background: #079fe0;
+    border-radius: 4px 4px 0 0;
+    margin: 0 auto 7px;
+    width: min(38px, 80%);
+}
+
+
+/* ========================================
+   15. FOOTER
+======================================== */
+footer {
+    text-align: center;
+    color: var(--muted);
+    padding: 20px;
+    font-size: 12px;
+}
+
+
+/* ========================================
+   16. MODAL DAN STRUK
+======================================== */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: #14252dcc;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    z-index: 5;
+    overflow: auto;
+}
+
+.receipt-card {
+    position: relative;
+    background: white;
+    width: min(480px, 100%);
+    padding: 26px;
+    border-radius: 8px;
+    max-height: 95vh;
+    overflow: auto;
+}
+
+.close {
+    position: absolute;
+    right: 10px;
+    top: 8px;
+    border: 0;
+    font-size: 24px;
+    padding: 2px 9px;
+}
+
+.receipt-title {
+    text-align: center;
+    border-bottom: 1px dashed #9aa5a9;
+    padding: 8px 0 16px;
+}
+
+.receipt-title h2 {
+    letter-spacing: 1px;
+}
+
+.receipt-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 9px 0;
+}
+
+.receipt-items {
+    border-bottom: 1px dashed #9aa5a9;
+    padding: 12px 0;
+}
+
+.receipt-items p {
+    margin: 5px 0;
+}
+
+.receipt-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.receipt-actions button {
+    flex: 1;
+}
+
+
+/* ========================================
+   17. RESPONSIVE TABLET
+======================================== */
+@media (max-width: 850px) {
+    .checkout-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .tab {
+        flex: 1;
+        min-width: 0;
+        font-size: 17px;
+        padding: 11px 12px;
+    }
+
+    .banner {
+        height: 75px;
+    }
+
+    .topbar {
+        align-items: flex-start;
+    }
+
+    .address {
+        max-width: 75vw;
+        line-height: 1.5;
+    }
+}
+
+
+/* ========================================
+   18. RESPONSIVE HP
+======================================== */
+@media (max-width: 480px) {
+    body {
+        font-size: 14px;
+    }
+
+    .topbar {
+        padding-top: 17px;
+    }
+
+    .brand {
+        font-size: 28px;
+    }
+
+    .tabs {
+        padding-top: 16px;
+        padding-bottom: 12px;
+    }
+
+    .page {
+        padding-top: 8px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-grid .wide {
+        grid-column: auto;
+    }
+
+    .metrics {
+        gap: 8px;
+    }
+
+    .metric {
+        padding: 12px;
+    }
+
+    .metric strong {
+        font-size: 18px;
+    }
+
+    .section-head {
+        align-items: flex-start;
+    }
+
+    .progress-labels {
+        font-size: 11px;
+    }
+
+    .receipt-actions {
+        flex-direction: column;
+    }
+}
