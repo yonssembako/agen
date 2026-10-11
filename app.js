@@ -1,79 +1,54 @@
-/**
- * YONS AGEN KASIR
- * Frontend JavaScript
- *
- * Petunjuk:
- * 1. Isi API_URL dengan URL Web App Apps Script.
- * 2. Pastikan deployment Apps Script sudah aktif.
- * 3. Pastikan ID elemen HTML sesuai dengan kode ini.
- */
 
-// ============================================================
-// 1. KONFIGURASI DAN STATE APLIKASI
-// ============================================================
+/* =========================================================
+   YONS AGEN KASIR
+   Isi API_URL dengan URL Web App Apps Script setelah deployment.
+   ========================================================= */
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbyJ16xWIio6nqT9lYm5tdmGlURRpi3vc-34QWQkptULY8XKp0tZb69AVt1I0C3xo8Iz-w/exec';
+const API_URL = 'TEMPEL_URL_WEB_APP_APPS_SCRIPT_DI_SINI';
 
-const $ = (id) => document.getElementById(id);
+const $ = id => document.getElementById(id);
 
 const state = {
   password: '',
   products: [],
   customers: [],
+  suppliers: [],
   cart: [],
+  purchaseCart: [],
   lastReceipt: null,
   dashboard: null
 };
 
+/* =========================================================
+   UTILITAS
+   ========================================================= */
 
-// ============================================================
-// 2. UTILITAS
-// ============================================================
-
-/**
- * Format angka menjadi mata uang Rupiah.
- */
-const rupiah = (value) => {
-  return new Intl.NumberFormat('id-ID', {
+const rupiah = n =>
+  new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
     maximumFractionDigits: 0
-  }).format(Number(value) || 0);
-};
+  }).format(Number(n) || 0);
 
-
-/**
- * Mengamankan teks sebelum dimasukkan ke HTML.
- */
-const esc = (value) => {
-  return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+const esc = s =>
+  String(s ?? '').replace(/[&<>"']/g, c => ({
     '&': '&amp;',
     '<': '&lt;',
     '>': '&gt;',
     '"': '&quot;',
     "'": '&#39;'
-  })[char]);
-};
+  })[c]);
 
+/* =========================================================
+   KONEKSI API GOOGLE APPS SCRIPT
+   ========================================================= */
 
-// ============================================================
-// 3. API APPS SCRIPT
-// ============================================================
-
-/**
- * Mengirim permintaan ke backend Apps Script melalui JSONP.
- *
- * Catatan:
- * Metode ini mengikuti backend doGet() yang sudah tersedia.
- */
 function api(action, data = {}) {
   return new Promise((resolve, reject) => {
     if (!API_URL.startsWith('https://script.google.com/')) {
-      reject(
+      return reject(
         new Error('URL Apps Script belum diisi di app.js.')
       );
-
-      return;
     }
 
     const callback =
@@ -84,6 +59,34 @@ function api(action, data = {}) {
 
     const script = document.createElement('script');
 
+    const timer = setTimeout(() => {
+      cleanup();
+
+      reject(
+        new Error(
+          'Koneksi timeout. Periksa URL dan deployment Apps Script.'
+        )
+      );
+    }, 20000);
+
+    function cleanup() {
+      clearTimeout(timer);
+      delete window[callback];
+      script.remove();
+    }
+
+    window[callback] = result => {
+      cleanup();
+
+      if (result && result.ok) {
+        resolve(result);
+      } else {
+        reject(
+          new Error(result?.error || 'Permintaan gagal.')
+        );
+      }
+    };
+
     const params = new URLSearchParams({
       action,
       callback,
@@ -91,49 +94,12 @@ function api(action, data = {}) {
       payload: JSON.stringify(data)
     });
 
-    let settled = false;
-
-    const cleanup = () => {
-      clearTimeout(timer);
-      delete window[callback];
-      script.remove();
-    };
-
-    const finish = (handler, value) => {
-      if (settled) return;
-
-      settled = true;
-      cleanup();
-      handler(value);
-    };
-
-    const timer = setTimeout(() => {
-      finish(
-        reject,
-        new Error(
-          'Koneksi timeout. Periksa URL dan deployment Apps Script.'
-        )
-      );
-    }, 20000);
-
-    window[callback] = (result) => {
-      if (result && result.ok) {
-        finish(resolve, result);
-      } else {
-        finish(
-          reject,
-          new Error(
-            result?.error || 'Permintaan gagal.'
-          )
-        );
-      }
-    };
-
     script.src = API_URL + '?' + params.toString();
 
     script.onerror = () => {
-      finish(
-        reject,
+      cleanup();
+
+      reject(
         new Error('Gagal terhubung ke Apps Script.')
       );
     };
@@ -142,16 +108,14 @@ function api(action, data = {}) {
   });
 }
 
+/* =========================================================
+   LOGIN DAN LOGOUT
+   ========================================================= */
 
-// ============================================================
-// 4. LOGIN DAN LOGOUT
-// ============================================================
-
-$('loginForm').addEventListener('submit', async (event) => {
-  event.preventDefault();
+$('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
 
   state.password = $('password').value;
-
   $('loginMessage').textContent = 'Memeriksa password…';
 
   try {
@@ -164,39 +128,36 @@ $('loginForm').addEventListener('submit', async (event) => {
     await Promise.all([
       loadProducts(),
       loadCustomers(),
+      loadSuppliers(),
       loadDashboard()
     ]);
-
-  } catch (error) {
+  } catch (err) {
     state.password = '';
     $('password').value = '';
-    $('loginMessage').textContent = error.message;
+    $('loginMessage').textContent = err.message;
   }
 });
-
 
 $('logoutBtn').onclick = () => {
   state.password = '';
   state.cart = [];
-  state.lastReceipt = null;
 
   $('app').classList.add('hidden');
   $('loginScreen').classList.remove('hidden');
   $('password').focus();
 };
 
+/* =========================================================
+   NAVIGASI TAB
+   ========================================================= */
 
-// ============================================================
-// 5. NAVIGASI TAB
-// ============================================================
-
-document.querySelectorAll('.tab').forEach((button) => {
+document.querySelectorAll('.tab').forEach(button => {
   button.onclick = () => {
-    document.querySelectorAll('.tab').forEach((tab) => {
+    document.querySelectorAll('.tab').forEach(tab => {
       tab.classList.toggle('active', tab === button);
     });
 
-    document.querySelectorAll('.page').forEach((page) => {
+    document.querySelectorAll('.page').forEach(page => {
       page.classList.toggle(
         'hidden',
         page.id !== 'page-' + button.dataset.page
@@ -210,20 +171,21 @@ document.querySelectorAll('.tab').forEach((button) => {
     if (button.dataset.page === 'dashboard') {
       loadDashboard();
     }
+
+    if (button.dataset.page === 'pembelian') {
+      loadSuppliers();
+      fillPurchaseSelect();
+      renderPurchaseCart();
+    }
   };
 });
 
-
-// ============================================================
-// 6. DATA PRODUK
-// ============================================================
+/* =========================================================
+   PRODUK
+   ========================================================= */
 
 $('refreshProducts').onclick = loadProducts;
 
-
-/**
- * Mengambil data produk dari backend.
- */
 async function loadProducts() {
   try {
     const result = await api('products');
@@ -232,24 +194,15 @@ async function loadProducts() {
 
     renderProducts();
     fillProductSelect();
-
-  } catch (error) {
+  } catch (err) {
     $('productGrid').innerHTML =
-      '<p class="muted">' +
-      esc(error.message) +
-      '</p>';
+      '<p class="muted">' + esc(err.message) + '</p>';
   }
 }
 
-
-/**
- * Menampilkan kartu produk.
- */
 function renderProducts() {
-  const grid = $('productGrid');
-
   if (!state.products.length) {
-    grid.innerHTML =
+    $('productGrid').innerHTML =
       '<p class="muted">' +
       'Belum ada data produk. Tambahkan produk di sheet Produk.' +
       '</p>';
@@ -257,71 +210,85 @@ function renderProducts() {
     return;
   }
 
-  grid.innerHTML = state.products.map((product) => `
-    <article class="product-card">
-      <div style="display:flex;justify-content:space-between;gap:10px">
-        <h3>${esc(product.nama)}</h3>
+  $('productGrid').innerHTML = state.products.map(product => {
+    const name = String(product.nama || '').toLowerCase();
 
-        <span class="stock">
-          Stok: ${esc(product.stok)} ${esc(product.satuan)}
-        </span>
-      </div>
+    let fallback =
+      'https://placehold.co/600x400/eaf4f7/52666d?text=Foto+Produk';
 
-      <p>
-        ${esc(product.kategori || 'Barang')}
-        ·
-        ${esc(product.keterangan || 'Tidak ada keterangan')}
-      </p>
+    if (name.includes('telur')) {
+      fallback =
+        'https://images.unsplash.com/photo-1506976785307-8732e854ad03?auto=format&fit=crop&w=600&q=80';
+    } else if (name.includes('minyak')) {
+      fallback =
+        'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=600&q=80';
+    } else if (name.includes('beras')) {
+      fallback =
+        'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80';
+    }
 
-      <div class="price">
-        ${rupiah(product.harga)} / ${esc(product.satuan || 'unit')}
-      </div>
-    </article>
-  `).join('');
+    const photo = product.foto || fallback;
+
+    return `
+      <article class="product-card">
+        <img
+          class="product-photo"
+          src="${esc(photo)}"
+          alt="Foto ${esc(product.nama)}"
+          loading="lazy"
+          onerror="this.onerror=null;this.src='https://placehold.co/600x400/eaf4f7/52666d?text=Foto+Produk'"
+        >
+
+        <div class="product-info">
+          <div class="product-title-row">
+            <h3>${esc(product.nama)}</h3>
+
+            <span class="stock">
+              Stok: ${esc(product.stok)} ${esc(product.satuan)}
+            </span>
+          </div>
+
+          <p>
+            ${esc(product.kategori || 'Barang')}
+            ·
+            ${esc(product.keterangan || 'Tidak ada keterangan')}
+          </p>
+
+          <div class="price">
+            ${rupiah(product.harga)} / ${esc(product.satuan || 'unit')}
+          </div>
+        </div>
+      </article>
+    `;
+  }).join('');
 }
 
-
-/**
- * Mengisi pilihan produk pada form kasir.
- */
 function fillProductSelect() {
-  const select = $('itemSelect');
-  const previousValue = select.value;
+  const old = $('itemSelect').value;
 
-  const availableProducts = state.products.filter(
-    (product) => Number(product.stok) > 0
-  );
+  $('itemSelect').innerHTML =
+    '<option value="">Pilih barang…</option>' +
+    state.products
+      .filter(product => Number(product.stok) > 0)
+      .map(product => `
+        <option value="${esc(product.id)}">
+          ${esc(product.nama)}
+        </option>
+      `)
+      .join('');
 
-  select.innerHTML = `
-    <option value="">Pilih barang…</option>
-    ${availableProducts.map((product) => `
-      <option value="${esc(product.id)}">
-        ${esc(product.nama)}
-      </option>
-    `).join('')}
-  `;
-
-  if (
-    availableProducts.some(
-      (product) => product.id === previousValue
-    )
-  ) {
-    select.value = previousValue;
+  if (state.products.some(product => product.id === old)) {
+    $('itemSelect').value = old;
   }
 
   updateSelectedProduct();
 }
 
-
 $('itemSelect').onchange = updateSelectedProduct;
 
-
-/**
- * Menampilkan harga dan stok produk terpilih.
- */
 function updateSelectedProduct() {
   const product = state.products.find(
-    (item) => item.id === $('itemSelect').value
+    item => item.id === $('itemSelect').value
   );
 
   $('itemPrice').value = product
@@ -333,47 +300,39 @@ function updateSelectedProduct() {
     : '';
 }
 
+/* =========================================================
+   KERANJANG KASIR
+   ========================================================= */
 
-// ============================================================
-// 7. KERANJANG BELANJA
-// ============================================================
-
-/**
- * Menambahkan produk ke keranjang.
- */
 $('addItem').onclick = () => {
   const product = state.products.find(
-    (item) => item.id === $('itemSelect').value
+    item => item.id === $('itemSelect').value
   );
 
   const qty = Number($('itemQty').value);
 
   if (!product) {
-    alert('Pilih barang terlebih dahulu.');
-    return;
+    return alert('Pilih barang terlebih dahulu.');
   }
 
   if (!(qty > 0)) {
-    alert('Qty harus lebih dari 0.');
-    return;
+    return alert('Qty harus lebih dari 0.');
   }
 
-  const quantityInCart = state.cart
-    .filter((item) => item.id === product.id)
+  const inCart = state.cart
+    .filter(item => item.id === product.id)
     .reduce((sum, item) => sum + item.qty, 0);
 
-  if (qty + quantityInCart > Number(product.stok)) {
-    alert('Qty melebihi stok yang tersedia.');
-    return;
+  if (qty + inCart > Number(product.stok)) {
+    return alert('Qty melebihi stok yang tersedia.');
   }
 
-  const existingItem = state.cart.find(
-    (item) => item.id === product.id
+  const existing = state.cart.find(
+    item => item.id === product.id
   );
 
-  if (existingItem) {
-    existingItem.qty += qty;
-
+  if (existing) {
+    existing.qty += qty;
   } else {
     state.cart.push({
       id: product.id,
@@ -389,21 +348,6 @@ $('addItem').onclick = () => {
   renderCart();
 };
 
-
-/**
- * Menghitung total seluruh keranjang.
- */
-const cartTotal = () => {
-  return state.cart.reduce(
-    (sum, item) => sum + item.qty * item.harga,
-    0
-  );
-};
-
-
-/**
- * Menampilkan isi keranjang dan total belanja.
- */
 function renderCart() {
   const body = $('cartRows');
 
@@ -415,7 +359,6 @@ function renderCart() {
         </td>
       </tr>
     `;
-
   } else {
     body.innerHTML = state.cart.map((item, index) => `
       <tr>
@@ -424,17 +367,14 @@ function renderCart() {
         <td>${item.qty} ${esc(item.satuan)}</td>
         <td>${rupiah(item.harga)}</td>
         <td>${rupiah(item.qty * item.harga)}</td>
-
         <td>
-          <button data-remove="${index}" title="Hapus">
-            ×
-          </button>
+          <button data-remove="${index}" title="Hapus">×</button>
         </td>
       </tr>
     `).join('');
   }
 
-  body.querySelectorAll('[data-remove]').forEach((button) => {
+  body.querySelectorAll('[data-remove]').forEach(button => {
     button.onclick = () => {
       state.cart.splice(Number(button.dataset.remove), 1);
       renderCart();
@@ -446,53 +386,45 @@ function renderCart() {
   updateChange();
 }
 
-
-// ============================================================
-// 8. PEMBAYARAN DAN KEMBALIAN
-// ============================================================
+const cartTotal = () =>
+  state.cart.reduce(
+    (sum, item) => sum + item.qty * item.harga,
+    0
+  );
 
 $('amountPaid').oninput = updateChange;
 
-
-/**
- * Menghitung uang kembalian.
- */
 function updateChange() {
   const paid = Number($('amountPaid').value || 0);
-  const change = Math.max(0, paid - cartTotal());
 
-  $('changeDue').textContent = rupiah(change);
+  $('changeDue').textContent = rupiah(
+    Math.max(0, paid - cartTotal())
+  );
 }
 
-
-// ============================================================
-// 9. PROSES CHECKOUT
-// ============================================================
+/* =========================================================
+   PROSES TRANSAKSI PENJUALAN
+   ========================================================= */
 
 $('finishSale').onclick = async () => {
   if (!state.cart.length) {
-    alert('Daftar belanja masih kosong.');
-    return;
+    return alert('Daftar belanja masih kosong.');
   }
 
   const total = cartTotal();
   const bayar = Number($('amountPaid').value || 0);
 
   if (bayar < total) {
-    alert('Uang bayar kurang dari total belanja.');
-    return;
+    return alert('Uang bayar kurang dari total belanja.');
   }
 
-  const button = $('finishSale');
-
-  button.disabled = true;
+  $('finishSale').disabled = true;
   $('saleMessage').textContent = 'Menyimpan transaksi…';
 
   try {
     const result = await api('checkout', {
       namaPelanggan:
         $('customerName').value.trim() || 'Pelanggan Umum',
-
       bayar,
       items: state.cart
     });
@@ -511,24 +443,215 @@ $('finishSale').onclick = async () => {
     await Promise.all([
       loadProducts(),
       loadCustomers(),
+      loadSuppliers(),
       loadDashboard()
     ]);
 
     $('saleMessage').textContent =
       'Transaksi berhasil disimpan.';
+  } catch (err) {
+    $('saleMessage').textContent = err.message;
+  } finally {
+    $('finishSale').disabled = false;
+  }
+};
 
-  } catch (error) {
-    $('saleMessage').textContent = error.message;
+/* =========================================================
+   PEMASOK
+   ========================================================= */
 
+async function loadSuppliers() {
+  try {
+    const result = await api('suppliers');
+
+    state.suppliers = result.suppliers || [];
+
+    $('supplierOptions').innerHTML =
+      state.suppliers.map(supplier => `
+        <option value="${esc(supplier.nama)}">
+      `).join('');
+  } catch (err) {
+    console.warn(err.message);
+  }
+}
+
+/* =========================================================
+   KERANJANG PEMBELIAN
+   ========================================================= */
+
+function fillPurchaseSelect() {
+  const old = $('purchaseItem').value;
+
+  $('purchaseItem').innerHTML =
+    '<option value="">Pilih barang…</option>' +
+    state.products.map(product => `
+      <option value="${esc(product.id)}">
+        ${esc(product.nama)}
+      </option>
+    `).join('');
+
+  if (state.products.some(product => product.id === old)) {
+    $('purchaseItem').value = old;
+  }
+}
+
+$('purchaseItem').onchange = () => {
+  const product = state.products.find(
+    item => item.id === $('purchaseItem').value
+  );
+
+  $('purchasePrice').value = product
+    ? Number(product.harga)
+    : '';
+};
+
+$('addPurchaseItem').onclick = () => {
+  const product = state.products.find(
+    item => item.id === $('purchaseItem').value
+  );
+
+  const qty = Number($('purchaseQty').value);
+  const hargaBeli = Number($('purchasePrice').value);
+
+  if (!product) {
+    return alert('Pilih barang.');
+  }
+
+  if (
+    !(qty > 0) ||
+    !(hargaBeli >= 0) ||
+    $('purchasePrice').value === ''
+  ) {
+    return alert('Isi jumlah dan harga beli dengan benar.');
+  }
+
+  const existing = state.purchaseCart.find(
+    item => item.id === product.id
+  );
+
+  if (existing) {
+    existing.qty += qty;
+    existing.hargaBeli = hargaBeli;
+  } else {
+    state.purchaseCart.push({
+      id: product.id,
+      nama: product.nama,
+      satuan: product.satuan || 'unit',
+      qty,
+      hargaBeli
+    });
+  }
+
+  $('purchaseQty').value = '1';
+
+  renderPurchaseCart();
+};
+
+function renderPurchaseCart() {
+  const el = $('purchaseList');
+
+  if (!state.purchaseCart.length) {
+    el.innerHTML =
+      '<p class="muted">Belum ada barang pembelian.</p>';
+  } else {
+    el.innerHTML = state.purchaseCart.map((item, index) => `
+      <div class="purchase-row">
+        <div>
+          <strong>${esc(item.nama)}</strong>
+          <small>
+            ${item.qty} ${esc(item.satuan)}
+            × ${rupiah(item.hargaBeli)}
+          </small>
+        </div>
+
+        <strong>${rupiah(item.qty * item.hargaBeli)}</strong>
+
+        <button
+          type="button"
+          data-premove="${index}"
+          aria-label="Hapus barang"
+        >
+          ×
+        </button>
+      </div>
+    `).join('');
+  }
+
+  el.querySelectorAll('[data-premove]').forEach(button => {
+    button.onclick = () => {
+      state.purchaseCart.splice(
+        Number(button.dataset.premove),
+        1
+      );
+
+      renderPurchaseCart();
+    };
+  });
+
+  const total = state.purchaseCart.reduce(
+    (sum, item) => sum + item.qty * item.hargaBeli,
+    0
+  );
+
+  $('purchaseTotal').textContent = rupiah(total);
+}
+
+/* =========================================================
+   SIMPAN PEMBELIAN
+   ========================================================= */
+
+$('savePurchase').onclick = async () => {
+  if (!state.purchaseCart.length) {
+    return alert(
+      'Tambahkan barang pembelian terlebih dahulu.'
+    );
+  }
+
+  const namaSupplier = $('supplierName').value.trim();
+
+  if (!namaSupplier) {
+    return alert('Isi nama pemasok.');
+  }
+
+  const button = $('savePurchase');
+
+  button.disabled = true;
+  $('purchaseMessage').textContent = 'Menyimpan pembelian…';
+
+  try {
+    const result = await api('purchase', {
+      namaSupplier,
+      metodeBayar: $('purchaseMethod').value,
+      catatan: $('purchaseNote').value.trim(),
+      items: state.purchaseCart
+    });
+
+    state.purchaseCart = [];
+
+    renderPurchaseCart();
+
+    $('purchaseNote').value = '';
+
+    $('purchaseMessage').textContent =
+      `Pembelian ${result.purchase.id} tersimpan. ` +
+      `Total ${rupiah(result.purchase.total)}. ` +
+      'Stok sudah diperbarui.';
+
+    await Promise.all([
+      loadProducts(),
+      loadSuppliers(),
+      loadDashboard()
+    ]);
+  } catch (err) {
+    $('purchaseMessage').textContent = err.message;
   } finally {
     button.disabled = false;
   }
 };
 
-
-// ============================================================
-// 10. DATA CUSTOMER
-// ============================================================
+/* =========================================================
+   PELANGGAN
+   ========================================================= */
 
 async function loadCustomers() {
   try {
@@ -537,24 +660,35 @@ async function loadCustomers() {
     state.customers = result.customers || [];
 
     $('customerOptions').innerHTML =
-      state.customers.map((customer) => `
+      state.customers.map(customer => `
         <option value="${esc(customer.nama)}">
       `).join('');
-
-  } catch (error) {
-    console.warn(error.message);
+  } catch (err) {
+    console.warn(err.message);
   }
 }
 
+/* =========================================================
+   STRUK BELANJA
+   ========================================================= */
 
-// ============================================================
-// 11. STRUK BELANJA
-// ============================================================
-
-/**
- * Menampilkan struk transaksi.
- */
 function showReceipt(receipt) {
+  const itemsHtml = receipt.items.map(item => `
+    <p>
+      ${esc(item.nama)}
+      <br>
+
+      <small>
+        ${item.qty} ${esc(item.satuan)}
+        × ${rupiah(item.harga)}
+
+        <span style="float: right">
+          ${rupiah(item.jumlah)}
+        </span>
+      </small>
+    </p>
+  `).join('');
+
   $('receiptContent').innerHTML = `
     <div class="receipt-title">
       <h2>YONS AGEN</h2>
@@ -581,20 +715,7 @@ function showReceipt(receipt) {
     </div>
 
     <div class="receipt-items">
-      ${receipt.items.map((item) => `
-        <p>
-          ${esc(item.nama)}<br>
-
-          <small>
-            ${item.qty} ${esc(item.satuan)}
-            × ${rupiah(item.harga)}
-
-            <span style="float:right">
-              ${rupiah(item.jumlah)}
-            </span>
-          </small>
-        </p>
-      `).join('')}
+      ${itemsHtml}
     </div>
 
     <div class="receipt-line">
@@ -612,7 +733,7 @@ function showReceipt(receipt) {
       <span>${rupiah(receipt.kembalian)}</span>
     </div>
 
-    <p style="text-align:center;margin-top:22px">
+    <p style="text-align: center; margin-top: 22px">
       Terima kasih telah berbelanja.
     </p>
   `;
@@ -620,87 +741,64 @@ function showReceipt(receipt) {
   $('receiptModal').classList.remove('hidden');
 }
 
-
-/**
- * Menutup modal struk.
- */
 $('closeReceipt').onclick = () => {
   $('receiptModal').classList.add('hidden');
 };
 
-
-$('receiptModal').addEventListener('click', (event) => {
+$('receiptModal').addEventListener('click', event => {
   if (event.target === $('receiptModal')) {
     $('receiptModal').classList.add('hidden');
   }
 });
 
+/* =========================================================
+   BAGIKAN STRUK MELALUI WHATSAPP
+   ========================================================= */
 
-// ============================================================
-// 12. CETAK DAN BAGIKAN STRUK
-// ============================================================
-
-/**
- * Mengubah struk menjadi teks untuk WhatsApp.
- */
 function receiptText(receipt) {
-  const items = receipt.items.map((item) => {
-    return (
-      `${item.nama}\n` +
-      `${item.qty} ${item.satuan} x ` +
-      `${rupiah(item.harga)} = ${rupiah(item.jumlah)}`
-    );
-  }).join('\n');
+  const itemsText = receipt.items.map(item => `
+${item.nama}
+${item.qty} ${item.satuan} x ${rupiah(item.harga)} = ${rupiah(item.jumlah)}
+  `.trim()).join('\n');
 
-  return (
-    '*YONS AGEN — STRUK BELANJA*\n' +
-    'Jl. Parungseah RT.04/RW.06, Sukabumi\n' +
-    `No: ${receipt.id}\n` +
-    `Tanggal: ${receipt.tanggal}\n` +
-    `Pelanggan: ${receipt.pelanggan}\n\n` +
-    items +
-    '\n\n' +
-    `*TOTAL: ${rupiah(receipt.total)}*\n` +
-    `Bayar: ${rupiah(receipt.bayar)}\n` +
-    `Kembalian: ${rupiah(receipt.kembalian)}\n\n` +
-    'Terima kasih telah berbelanja.'
-  );
+  return `*YONS AGEN — STRUK BELANJA*
+Jl. Parungseah RT.04/RW.06, Sukabumi
+No: ${receipt.id}
+Tanggal: ${receipt.tanggal}
+Pelanggan: ${receipt.pelanggan}
+
+${itemsText}
+
+*TOTAL: ${rupiah(receipt.total)}*
+Bayar: ${rupiah(receipt.bayar)}
+Kembalian: ${rupiah(receipt.kembalian)}
+
+Terima kasih telah berbelanja.`;
 }
 
-
-/**
- * Membagikan struk melalui WhatsApp.
- */
 $('shareReceipt').onclick = () => {
   if (!state.lastReceipt) return;
 
-  const url =
-    'https://wa.me/?text=' +
-    encodeURIComponent(receiptText(state.lastReceipt));
+  const text = encodeURIComponent(
+    receiptText(state.lastReceipt)
+  );
 
-  window.open(url, '_blank', 'noopener');
+  window.open(
+    'https://wa.me/?text=' + text,
+    '_blank',
+    'noopener'
+  );
 };
 
+$('printReceipt').onclick = () => window.print();
 
-/**
- * Mencetak struk.
- */
-$('printReceipt').onclick = () => {
-  window.print();
-};
-
-
-// ============================================================
-// 13. DASHBOARD
-// ============================================================
+/* =========================================================
+   DASHBOARD
+   ========================================================= */
 
 $('refreshDashboard').onclick = loadDashboard;
 $('applyDashboard').onclick = loadDashboard;
 
-
-/**
- * Mengambil data dashboard dari backend.
- */
 async function loadDashboard() {
   try {
     const result = await api('dashboard', {
@@ -711,42 +809,34 @@ async function loadDashboard() {
     state.dashboard = result;
 
     renderDashboard(result);
-
-  } catch (error) {
+  } catch (err) {
     $('dailyBars').innerHTML =
-      '<p class="muted">' +
-      esc(error.message) +
-      '</p>';
+      '<p class="muted">' + esc(err.message) + '</p>';
   }
 }
 
+/* =========================================================
+   PERBANDINGAN PERSENTASE
+   ========================================================= */
 
-/**
- * Menghitung persentase perubahan.
- */
-function pct(current, previous) {
-  if (!previous) {
-    return current ? '+100%' : '0%';
+function pct(curr, prev) {
+  if (!prev) {
+    return curr ? '+100%' : '0%';
   }
 
-  const value = ((current - previous) / previous) * 100;
+  const value = ((curr - prev) / prev) * 100;
 
-  return (
-    (value > 0 ? '+' : '') +
-    value.toFixed(1) +
-    '%'
-  );
+  return (value > 0 ? '+' : '') + value.toFixed(1) + '%';
 }
 
+/* =========================================================
+   TAMPILKAN DATA DASHBOARD
+   ========================================================= */
 
-/**
- * Menampilkan ringkasan dan grafik dashboard.
- */
 function renderDashboard(result) {
   const summary = result.summary;
   const previous = result.previous;
 
-  // Ringkasan utama.
   $('metricRevenue').textContent =
     rupiah(summary.revenue);
 
@@ -762,7 +852,6 @@ function renderDashboard(result) {
       : 0
   );
 
-  // Perbandingan periode sebelumnya.
   $('metricRevenueChange').textContent =
     'vs sebelumnya: ' +
     pct(summary.revenue, previous.revenue);
@@ -775,7 +864,6 @@ function renderDashboard(result) {
     'vs sebelumnya: ' +
     pct(summary.items, previous.items);
 
-  // Target omzet.
   const target = Number(result.target) || 0;
 
   const percent = target
@@ -798,43 +886,25 @@ function renderDashboard(result) {
     `dibanding periode sebelumnya ` +
     `(${rupiah(previous.revenue)})`;
 
-  // Grafik omzet.
-  renderDailyBars(result.daily || []);
-}
+  const bars = result.daily || [];
 
-
-/**
- * Menggambar grafik omzet berdasarkan data backend.
- */
-function renderDailyBars(bars) {
-  const container = $('dailyBars');
-
-  if (!bars.length) {
-    container.innerHTML =
-      '<p class="muted">Belum ada transaksi.</p>';
-
-    return;
-  }
-
-  const maxRevenue = Math.max(
+  const max = Math.max(
     1,
-    ...bars.map((item) => item.revenue)
+    ...bars.map(item => item.revenue)
   );
 
-  container.innerHTML = bars.map((item) => {
-    const height = Math.max(
-      3,
-      Math.round(item.revenue / maxRevenue * 115)
-    );
-
-    return `
+  if (bars.length) {
+    $('dailyBars').innerHTML = bars.map(item => `
       <div
         class="bar-col"
         title="${esc(item.label)}: ${rupiah(item.revenue)}"
       >
         <div
           class="bar"
-          style="height:${height}px"
+          style="height: ${Math.max(
+            3,
+            Math.round(item.revenue / max * 115)
+          )}px"
         ></div>
 
         <div>${esc(item.label)}</div>
@@ -843,6 +913,9 @@ function renderDailyBars(bars) {
           ${item.revenue ? rupiah(item.revenue) : '—'}
         </div>
       </div>
-    `;
-  }).join('');
+    `).join('');
+  } else {
+    $('dailyBars').innerHTML =
+      '<p class="muted">Belum ada transaksi.</p>';
+  }
 }
