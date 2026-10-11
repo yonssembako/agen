@@ -1,31 +1,31 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>Yons Agen — Aplikasi Kasir</title>
 
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=20261011b">
 </head>
-<body>
 
-  <!-- =========================
-       HALAMAN LOGIN
-  ========================== -->
+<body>
+  <!-- Login -->
   <section id="loginScreen" class="login-wrap">
     <form id="loginForm" class="login-card">
       <div class="brand-mark">YA</div>
 
       <h1>YONS AGEN</h1>
-      <p>Kasir & pengelolaan penjualan</p>
+      <p>Kasir &amp; pengelolaan penjualan</p>
 
       <label for="password">Password aplikasi</label>
       <input
         id="password"
         type="password"
         required
-        autocomplete="current-password"
+        autocomplete="off"
+        autocapitalize="none"
+        spellcheck="false"
         placeholder="Masukkan password"
       >
 
@@ -37,12 +37,9 @@
     </form>
   </section>
 
-  <!-- =========================
-       APLIKASI UTAMA
-  ========================== -->
+  <!-- Aplikasi utama -->
   <main id="app" class="hidden">
-
-    <!-- HEADER -->
+    <!-- Header -->
     <header class="topbar">
       <div>
         <div class="brand">YONS AGEN</div>
@@ -58,12 +55,12 @@
       </button>
     </header>
 
-    <!-- BANNER -->
+    <!-- Banner -->
     <div class="banner" aria-label="Area informasi">
       <span>Selamat berbelanja di Yons Agen</span>
     </div>
 
-    <!-- NAVIGASI -->
+    <!-- Navigasi -->
     <nav class="tabs">
       <button data-page="produk" class="tab active">
         Produk
@@ -82,16 +79,12 @@
       </button>
     </nav>
 
-    <!-- =========================
-         HALAMAN PRODUK
-    ========================== -->
+    <!-- Halaman Produk -->
     <section id="page-produk" class="page">
       <div class="section-head">
         <div>
-          <h2>Produk & Barang</h2>
-          <p>
-            Informasi barang, stok, satuan, dan harga terkini.
-          </p>
+          <h2>Produk &amp; Barang</h2>
+          <p>Informasi barang, stok, satuan, dan harga terkini.</p>
         </div>
 
         <button id="refreshProducts" class="secondary">
@@ -104,9 +97,7 @@
       </div>
     </section>
 
-    <!-- =========================
-         HALAMAN PEMBELIAN
-    ========================== -->
+    <!-- Halaman Pembelian -->
     <section id="page-pembelian" class="page hidden">
       <div class="section-head">
         <div>
@@ -117,23 +108,19 @@
 
       <div class="panel">
         <div class="form-grid">
-
           <label class="wide">
             Nama pemasok
-
             <input
               id="supplierName"
               list="supplierOptions"
               placeholder="Nama pemasok / agen"
               required
             >
-
             <datalist id="supplierOptions"></datalist>
           </label>
 
           <label class="wide">
             Barang
-
             <select id="purchaseItem">
               <option value="">Pilih barang…</option>
             </select>
@@ -141,7 +128,6 @@
 
           <label>
             Jumlah beli
-
             <input
               id="purchaseQty"
               type="number"
@@ -153,7 +139,6 @@
 
           <label>
             Harga beli per unit (Rp)
-
             <input
               id="purchasePrice"
               type="number"
@@ -172,16 +157,14 @@
               Tambah ke daftar
             </button>
           </div>
-
         </div>
 
-        <div class="purchase-list" id="purchaseList">
+        <div id="purchaseList" class="purchase-list">
           <p class="muted">Belum ada barang pembelian.</p>
         </div>
 
         <label>
           Metode pembayaran
-
           <select id="purchaseMethod">
             <option value="Tunai">Tunai / lunas</option>
             <option value="Transfer">Transfer / lunas</option>
@@ -191,7 +174,6 @@
 
         <label>
           Catatan (opsional)
-
           <input
             id="purchaseNote"
             placeholder="Nomor nota atau keterangan"
@@ -215,36 +197,102 @@
       </div>
     </section>
 
-    <!-- =========================
-         HALAMAN KASIR
-    ========================== -->
+    <!-- Halaman Kasir -->
     <section id="page-kasir" class="page hidden">
       <h2>Kasir</h2>
 
       <div class="checkout-layout">
-
-        <!-- FORM TRANSAKSI -->
+        <!-- Form barang dan pelanggan -->
         <div class="panel">
           <div class="form-grid">
+            <div class="wide customer-field">
+              <label for="customerName">Nama pelanggan</label>
 
-            <label class="wide">
-              Nama pelanggan
+              <div class="customer-entry-row">
+                <input
+                  id="customerName"
+                  list="customerOptions"
+                  placeholder="Pelanggan umum / nama pelanggan"
+                >
 
-              <input
-                id="customerName"
-                list="customerOptions"
-                placeholder="Pelanggan umum / nama pelanggan"
-              >
+                <button
+                  id="addCustomerBtn"
+                  class="secondary add-customer"
+                  type="button"
+                  title="Tambah data pelanggan"
+                  aria-label="Tambah data pelanggan"
+                >
+                  +
+                </button>
+              </div>
 
               <datalist id="customerOptions"></datalist>
-            </label>
+
+              <!-- Form pelanggan baru -->
+              <div id="customerForm" class="customer-form hidden">
+                <label>
+                  Nama pelanggan baru
+                  <input
+                    id="newCustomerName"
+                    placeholder="Nama lengkap"
+                  >
+                </label>
+
+                <label>
+                  No. WhatsApp (opsional)
+                  <input
+                    id="newCustomerWa"
+                    inputmode="tel"
+                    placeholder="08xxxxxxxxxx"
+                  >
+                </label>
+
+                <label>
+                  Alamat (opsional)
+                  <input
+                    id="newCustomerAddress"
+                    placeholder="Alamat pelanggan"
+                  >
+                </label>
+
+                <div class="customer-form-actions">
+                  <button
+                    id="saveCustomerBtn"
+                    class="primary"
+                    type="button"
+                  >
+                    Simpan pelanggan
+                  </button>
+
+                  <button
+                    id="cancelCustomerBtn"
+                    class="secondary"
+                    type="button"
+                  >
+                    Batal
+                  </button>
+                </div>
+
+                <small id="customerMessage" class="muted"></small>
+              </div>
+            </div>
 
             <label class="wide">
               Pilih barang
-
               <select id="itemSelect">
                 <option value="">Pilih barang…</option>
               </select>
+            </label>
+
+            <label>
+              Qty
+              <input
+                id="itemQty"
+                type="number"
+                min="0.01"
+                step="any"
+                value="1"
+              >
             </label>
 
             <label>
@@ -257,24 +305,11 @@
               <input id="itemStock" readonly>
             </label>
 
-            <label>
-              Qty
-
-              <input
-                id="itemQty"
-                type="number"
-                min="0.01"
-                step="any"
-                value="1"
-              >
-            </label>
-
             <div class="align-end">
               <button id="addItem" class="primary">
                 Tambah barang
               </button>
             </div>
-
           </div>
 
           <p class="hint">
@@ -283,7 +318,7 @@
           </p>
         </div>
 
-        <!-- DAFTAR BELANJA -->
+        <!-- Keranjang belanja -->
         <div class="panel cart-panel">
           <h3>Daftar Belanja</h3>
 
@@ -310,7 +345,6 @@
             </table>
           </div>
 
-          <!-- TOTAL PEMBAYARAN -->
           <div class="totals">
             <div>
               <span>Total</span>
@@ -319,7 +353,6 @@
 
             <label>
               Bayar
-
               <input
                 id="amountPaid"
                 type="number"
@@ -340,13 +373,10 @@
             <p id="saleMessage" class="muted"></p>
           </div>
         </div>
-
       </div>
     </section>
 
-    <!-- =========================
-         HALAMAN DASHBOARD
-    ========================== -->
+    <!-- Halaman Dashboard -->
     <section id="page-dashboard" class="page hidden">
       <div class="section-head">
         <div>
@@ -359,11 +389,10 @@
         </button>
       </div>
 
-      <!-- FILTER LAPORAN -->
+      <!-- Filter dashboard -->
       <div class="filters">
         <label>
           Periode
-
           <select id="period">
             <option value="day">Hari ini</option>
             <option value="week">Minggu ini</option>
@@ -374,7 +403,6 @@
 
         <label>
           Target omzet periode (Rp)
-
           <input
             id="salesTarget"
             type="number"
@@ -388,9 +416,8 @@
         </button>
       </div>
 
-      <!-- RINGKASAN METRIK -->
+      <!-- Ringkasan metrik -->
       <div class="metrics">
-
         <article class="metric">
           <span>Omzet periode ini</span>
           <strong id="metricRevenue">Rp 0</strong>
@@ -420,17 +447,15 @@
           <strong id="metricAverage">Rp 0</strong>
           <small>Nilai rata-rata per transaksi</small>
         </article>
-
       </div>
 
-      <!-- PROGRES TARGET OMZET -->
+      <!-- Progres target omzet -->
       <div class="panel progress-panel">
         <div class="section-head">
           <div>
             <h3>Progres omzet: As Is vs To Be</h3>
             <p>
-              As Is = omzet aktual.
-              To Be = target omzet yang Anda tetapkan.
+              As Is = omzet aktual. To Be = target omzet yang Anda tetapkan.
             </p>
           </div>
 
@@ -455,14 +480,13 @@
           </div>
 
           <p class="hint">
-            Laporan berdasarkan transaksi yang tersimpan di sheet
-            Penjualan. Target merupakan acuan yang dapat diubah,
-            bukan ramalan.
+            Laporan berdasarkan transaksi yang tersimpan di sheet Penjualan.
+            Target merupakan acuan yang dapat diubah, bukan ramalan.
           </p>
         </div>
       </div>
 
-      <!-- GRAFIK PENJUALAN -->
+      <!-- Grafik penjualan -->
       <div class="panel">
         <h3>Penjualan per hari</h3>
 
@@ -472,19 +496,15 @@
       </div>
     </section>
 
-    <!-- FOOTER -->
+    <!-- Footer -->
     <footer>
       Yons Agen · Data transaksi tersimpan di Google Spreadsheet
     </footer>
-
   </main>
 
-  <!-- =========================
-       MODAL STRUK BELANJA
-  ========================== -->
+  <!-- Modal struk -->
   <div id="receiptModal" class="modal hidden">
     <div class="receipt-card">
-
       <button
         id="closeReceipt"
         class="close"
@@ -504,12 +524,10 @@
           Cetak struk
         </button>
       </div>
-
     </div>
   </div>
 
-  <!-- JAVASCRIPT APLIKASI -->
-  <script src="app.js"></script>
-
+  <!-- JavaScript aplikasi -->
+  <script src="app.js?v=20261011b"></script>
 </body>
 </html>
