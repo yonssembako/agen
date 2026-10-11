@@ -1,7 +1,6 @@
-/* ========================================
-   1. Variabel dan pengaturan dasar
-======================================== */
-
+/* ==========================================
+   1. ROOT VARIABLES & RESET
+   ================================---------- */
 :root {
   --ink: #263238;
   --blue: #079fe0;
@@ -25,9 +24,7 @@ body {
   font-size: 15px;
 }
 
-button,
-input,
-select {
+button, input, select {
   font: inherit;
 }
 
@@ -41,7 +38,7 @@ button {
 }
 
 button:disabled {
-  opacity: 0.55;
+  opacity: .55;
   cursor: not-allowed;
 }
 
@@ -70,10 +67,9 @@ button:disabled {
 }
 
 
-/* ========================================
-   2. Halaman login
-======================================== */
-
+/* ==========================================
+   2. LOGIN SCREEN
+   ================================---------- */
 .login-wrap {
   min-height: 100vh;
   display: grid;
@@ -108,32 +104,8 @@ button:disabled {
   margin: 18px 0 5px;
 }
 
-.login-card p,
-.muted,
-.hint {
+.login-card p, .muted, .hint {
   color: var(--muted);
-}
-
-label {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  font-weight: 600;
-  margin: 12px 0;
-}
-
-.login-card input,
-.form-grid input,
-.form-grid select,
-.totals input,
-.filters input,
-.filters select {
-  width: 100%;
-  padding: 11px;
-  border: 1px solid #aeb9bd;
-  border-radius: 4px;
-  background: #fff;
-  color: var(--ink);
 }
 
 .login-card button {
@@ -141,10 +113,9 @@ label {
 }
 
 
-/* ========================================
-   3. Header dan banner
-======================================== */
-
+/* ==========================================
+   3. LAYOUT & NAVIGATION
+   ================================---------- */
 .topbar {
   padding: 22px clamp(16px, 4vw, 48px) 12px;
   background: #fff;
@@ -179,29 +150,36 @@ label {
   text-align: center;
 }
 
-
-/* ========================================
-   4. Navigasi dan halaman
-======================================== */
-
+/* Navigasi Tabs */
 .tabs {
   display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: stretch;
   gap: 8px;
-  padding: 22px clamp(16px, 5vw, 60px);
-  flex-wrap: wrap;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 16px clamp(16px, 5vw, 60px);
+  scrollbar-width: thin;
 }
 
-.tab {
-  min-width: 150px;
-  padding: 12px 24px;
-  font-size: 20px;
+.tabs .tab {
+  flex: 1 0 auto;
+  min-width: max-content;
+  text-align: center;
+  border-radius: 5px;
+  padding: 11px 18px;
+  font-size: clamp(14px, 1.5vw, 18px);
   border: 1px solid #68777c;
-  border-radius: 0;
 }
 
-.tab.active {
+.tabs .tab.active {
   background: var(--blue);
   border-color: #087ca8;
+}
+
+.tabs .tab.active:before {
+  content: none;
 }
 
 .page {
@@ -233,59 +211,29 @@ h3 {
 }
 
 
-/* ========================================
-   5. Kartu produk
-======================================== */
-
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+/* ==========================================
+   4. FORMS & INPUTS
+   ================================---------- */
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-weight: 600;
+  margin: 12px 0;
 }
 
-.product-card,
-.panel,
-.metric {
+.login-card input, 
+.form-grid input, 
+.form-grid select, 
+.totals input, 
+.filters input, 
+.filters select {
+  width: 100%;
+  padding: 11px;
+  border: 1px solid #aeb9bd;
+  border-radius: 4px;
   background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 7px;
-  padding: 18px;
-}
-
-.product-card h3 {
-  margin: 0 0 8px;
-  font-size: 18px;
-}
-
-.product-card p {
-  margin: 5px 0;
-  color: var(--muted);
-}
-
-.product-card .price {
-  font-weight: 700;
-  font-size: 18px;
-  color: #087eaf;
-  margin-top: 12px;
-}
-
-.stock {
-  font-size: 12px;
-  padding: 4px 8px;
-  background: #eef5f6;
-  border-radius: 20px;
-  display: inline-block;
-}
-
-
-/* ========================================
-   6. Tata letak kasir dan formulir
-======================================== */
-
-.checkout-layout {
-  display: grid;
-  grid-template-columns: minmax(260px, 0.9fr) minmax(400px, 1.5fr);
-  gap: 18px;
+  color: var(--ink);
 }
 
 .form-grid {
@@ -314,9 +262,155 @@ h3 {
 }
 
 
-/* ========================================
-   7. Tabel dan keranjang belanja
-======================================== */
+/* ==========================================
+   5. CUSTOMER FIELD & FORM
+   ================================---------- */
+.customer-field > label {
+  margin-bottom: 6px;
+}
+
+.customer-entry-row {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.customer-entry-row input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  padding: 11px;
+  border: 1px solid #aeb9bd;
+  border-radius: 4px;
+  background: #fff;
+  color: var(--ink);
+}
+
+.add-customer {
+  flex: 0 0 44px;
+  width: 44px;
+  padding: 5px;
+  font-size: 27px;
+  line-height: 1;
+  color: #087eaf;
+  border-color: #079fe0;
+}
+
+.customer-form {
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #f8fcfd;
+}
+
+.customer-form label {
+  margin: 8px 0;
+  font-size: 13px;
+}
+
+.customer-form input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #aeb9bd;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.customer-form-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.customer-form-actions button {
+  flex: 1;
+}
+
+
+/* ==========================================
+   6. PRODUCTS & CARDS
+   ================================---------- */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.product-card, .panel, .metric {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 18px;
+}
+
+/* Pembaruan foto produk & tata letak vertikal */
+.product-card {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-photo {
+  display: block;
+  width: 100%;
+  height: 190px;
+  object-fit: cover;
+  background: #eaf1f3;
+}
+
+.product-info {
+  padding: 16px;
+}
+
+.product-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.product-title-row h3 {
+  overflow-wrap: anywhere;
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.product-title-row .stock {
+  flex-shrink: 0;
+}
+
+.product-card p {
+  margin: 5px 0;
+  color: var(--muted);
+}
+
+.product-card .price {
+  font-weight: 700;
+  font-size: 18px;
+  color: #087eaf;
+  margin-top: 12px;
+}
+
+.stock {
+  font-size: 12px;
+  padding: 4px 8px;
+  background: #eef5f6;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+
+/* ==========================================
+   7. PURCHASES & CART
+   ================================---------- */
+.checkout-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, .9fr) minmax(400px, 1.5fr);
+  gap: 18px;
+}
 
 .table-scroll {
   overflow-x: auto;
@@ -328,8 +422,7 @@ table {
   min-width: 540px;
 }
 
-th,
-td {
+th, td {
   text-align: left;
   padding: 11px 8px;
   border-bottom: 1px solid #e2e7e9;
@@ -373,11 +466,61 @@ td button {
   margin: 12px 0;
 }
 
+/* Pembelian list */
+.purchase-list {
+  margin: 14px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
 
-/* ========================================
-   8. Filter dashboard dan metrik
-======================================== */
+.purchase-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 34px;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 0;
+  border-bottom: 1px solid #e6ebed;
+}
 
+.purchase-row:last-child {
+  border-bottom: 0;
+}
+
+.purchase-row div {
+  min-width: 0;
+}
+
+.purchase-row strong {
+  overflow-wrap: anywhere;
+}
+
+.purchase-row small {
+  display: block;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.purchase-row button {
+  padding: 5px 10px;
+  color: var(--red);
+}
+
+.purchase-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  font-size: 16px;
+}
+
+.purchase-total strong {
+  font-size: 21px;
+}
+
+
+/* ==========================================
+   8. DASHBOARD, METRICS & CHARTS
+   ================================---------- */
 .filters {
   display: flex;
   align-items: end;
@@ -403,8 +546,7 @@ td button {
   gap: 10px;
 }
 
-.metric span,
-.metric small {
+.metric span, .metric small {
   color: var(--muted);
 }
 
@@ -416,11 +558,6 @@ td button {
 .metric small {
   font-size: 12px;
 }
-
-
-/* ========================================
-   9. Progres target omzet
-======================================== */
 
 .progress-panel {
   margin-bottom: 18px;
@@ -437,7 +574,7 @@ td button {
   height: 100%;
   width: 0;
   background: var(--blue);
-  transition: width 0.25s;
+  transition: width .25s;
 }
 
 .progress-labels {
@@ -460,11 +597,6 @@ td button {
   gap: 15px;
   flex-wrap: wrap;
 }
-
-
-/* ========================================
-   10. Grafik penjualan
-======================================== */
 
 .bars {
   display: flex;
@@ -491,23 +623,28 @@ td button {
   width: min(38px, 80%);
 }
 
+.product-analysis-panel {
+  margin-top: 18px;
+}
 
-/* ========================================
-   11. Footer
-======================================== */
+.analysis-table {
+  min-width: 620px;
+}
 
-footer {
-  text-align: center;
-  color: var(--muted);
-  padding: 20px;
-  font-size: 12px;
+.analysis-table td:nth-child(2),
+.analysis-table td:nth-child(3),
+.analysis-table td:nth-child(4) {
+  font-variant-numeric: tabular-nums;
+}
+
+.analysis-table td:nth-child(4) {
+  font-weight: 600;
 }
 
 
-/* ========================================
-   12. Modal dan struk transaksi
-======================================== */
-
+/* ==========================================
+   9. MODAL & RECEIPT
+   ================================---------- */
 .modal {
   position: fixed;
   inset: 0;
@@ -574,583 +711,73 @@ footer {
   flex: 1;
 }
 
+footer {
+  text-align: center;
+  color: var(--muted);
+  padding: 20px;
+  font-size: 12px;
+}
 
-/* ========================================
-   13. Responsif: tablet dan layar kecil
-======================================== */
 
-@media (max-width: 850px) {
+/* ==========================================
+   10. MEDIA QUERIES (RESPONSIVE)
+   ================================---------- */
+@media(max-width: 850px) {
   .checkout-layout {
     grid-template-columns: 1fr;
   }
-
   .metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-
   .product-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-
-  .tab {
-    flex: 1;
-    min-width: 0;
-    font-size: 17px;
-    padding: 11px 12px;
-  }
-
   .banner {
     height: 75px;
   }
-
   .topbar {
     align-items: flex-start;
   }
-
   .address {
     max-width: 75vw;
     line-height: 1.5;
   }
 }
 
-@media (max-width: 480px) {
+@media(max-width: 600px) {
   body {
     font-size: 14px;
   }
-
-  .topbar {
-    padding-top: 17px;
-  }
-
-  .brand {
-    font-size: 28px;
-  }
-
-  .tabs {
-    padding-top: 16px;
-    padding-bottom: 12px;
-  }
-
-  .page {
-    padding-top: 8px;
-  }
-
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .form-grid .wide {
-    grid-column: auto;
-  }
-
-  .metrics {
-    gap: 8px;
-  }
-
-  .metric {
-    padding: 12px;
-  }
-
-  .metric strong {
-    font-size: 18px;
-  }
-
-  .section-head {
-    align-items: flex-start;
-  }
-
-  .progress-labels {
-    font-size: 11px;
-  }
-
-  .receipt-actions {
-    flex-direction: column;
-  }
-}
-
-
-/* ========================================
-   14. Pembaruan kartu foto produk
-======================================== */
-
-.product-card {
-  padding: 0;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.product-photo {
-  display: block;
-  width: 100%;
-  height: 190px;
-  object-fit: cover;
-  background: #eaf1f3;
-}
-
-.product-info {
-  padding: 16px;
-}
-
-.product-title-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-.product-title-row h3 {
-  overflow-wrap: anywhere;
-}
-
-.product-title-row .stock {
-  flex-shrink: 0;
-}
-
-.tabs {
-  align-items: stretch;
-}
-
-.tab {
-  flex: 0 1 180px;
-}
-
-
-/* ========================================
-   15. Responsif: ponsel
-======================================== */
-
-@media (max-width: 600px) {
-  body {
-    font-size: 14px;
-  }
-
   .topbar {
     padding: 14px 14px 10px;
     gap: 8px;
   }
-
   .brand {
     font-size: 27px;
-    letter-spacing: 0.5px;
+    letter-spacing: .5px;
   }
-
   .address {
     font-size: 10px;
     max-width: calc(100vw - 95px);
   }
-
   .topbar .quiet {
     padding: 8px 6px;
     font-size: 12px;
   }
-
   .banner {
     margin: 0 12px;
     height: 62px;
     font-size: 14px;
     padding: 8px;
   }
-
   .tabs {
     display: flex;
-    flex-direction: column;
-    gap: 7px;
-    padding: 12px;
-    margin: 0 12px;
-  }
-
-  .tab {
-    width: 100%;
-    min-height: 43px;
-    flex: none;
-    text-align: left;
-    padding: 10px 14px;
-    font-size: 16px;
-    border-radius: 5px;
-  }
-
-  .tab.active:before {
-    content: "●";
-    margin-right: 9px;
-    font-size: 10px;
-  }
-
-  .page {
-    padding: 10px 12px 24px;
-  }
-
-  .section-head {
-    gap: 8px;
-    margin-bottom: 14px;
-  }
-
-  .section-head h2,
-  h2 {
-    font-size: 21px;
-  }
-
-  .section-head p {
-    font-size: 12px;
-  }
-
-  .section-head button {
-    padding: 8px;
-    font-size: 12px;
-  }
-
-  .product-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 9px;
-  }
-
-  .product-photo {
-    height: 125px;
-  }
-
-  .product-info {
-    padding: 10px;
-  }
-
-  .product-card h3 {
-    font-size: 14px;
-    line-height: 1.25;
-    margin-bottom: 6px;
-  }
-
-  .product-title-row {
-    display: block;
-  }
-
-  .product-title-row .stock {
-    margin: 2px 0 4px;
-    font-size: 10px;
-  }
-
-  .product-card p {
-    font-size: 11px;
-    line-height: 1.35;
-    min-height: 30px;
-  }
-
-  .product-card .price {
-    font-size: 14px;
-    margin-top: 8px;
-  }
-
-  .checkout-layout {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 12px;
-  }
-
-  .panel {
-    padding: 13px;
-  }
-
-  .form-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0 9px;
-  }
-
-  .form-grid .wide {
-    grid-column: 1 / -1;
-  }
-
-  .form-grid label {
-    font-size: 12px;
-  }
-
-  .form-grid input,
-  .form-grid select,
-  .totals input,
-  .filters input,
-  .filters select {
-    padding: 10px;
-    font-size: 14px;
-  }
-
-  .align-end {
-    grid-column: 1 / -1;
-    padding-bottom: 8px;
-  }
-
-  .filters {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .filters label {
-    min-width: 0;
-    font-size: 12px;
-  }
-
-  .filters button {
-    width: 100%;
-    align-self: end;
-  }
-
-  .metrics {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-  }
-
-  .metric {
-    padding: 11px;
-    gap: 7px;
-  }
-
-  .metric span {
-    font-size: 11px;
-  }
-
-  .metric strong {
-    font-size: 16px;
-  }
-
-  .metric small {
-    font-size: 10px;
-    line-height: 1.35;
-  }
-
-  .progress-labels {
-    flex-direction: column;
-    gap: 5px;
-  }
-
-  .comparison > div {
-    display: block;
-  }
-
-  .bars {
-    gap: 5px;
-  }
-
-  .bar-col {
-    min-width: 35px;
-    font-size: 9px;
-  }
-
-  .receipt-card {
-    padding: 20px 14px;
-  }
-
-  .receipt-actions {
-    flex-direction: column;
-  }
-
-  .table-scroll {
-    margin: 0 -4px;
-  }
-
-  table {
-    min-width: 520px;
-  }
-
-  footer {
-    padding: 16px 12px;
-  }
-}
-
-@media (min-width: 601px) and (max-width: 850px) {
-  .product-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .product-photo {
-    height: 160px;
-  }
-
-  .tabs {
-    padding-left: 18px;
-    padding-right: 18px;
-  }
-
-  .tab {
-    flex: 1;
-    min-width: 0;
-  }
-}
-
-
-/* ========================================
-   16. Formulir dan daftar pembelian
-======================================== */
-
-.purchase-list {
-  margin: 14px 0;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-}
-
-.purchase-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto 34px;
-  align-items: center;
-  gap: 8px;
-  padding: 11px 0;
-  border-bottom: 1px solid #e6ebed;
-}
-
-.purchase-row:last-child {
-  border-bottom: 0;
-}
-
-.purchase-row div {
-  min-width: 0;
-}
-
-.purchase-row strong {
-  overflow-wrap: anywhere;
-}
-
-.purchase-row small {
-  display: block;
-  color: var(--muted);
-  margin-top: 4px;
-}
-
-.purchase-row button {
-  padding: 5px 10px;
-  color: var(--red);
-}
-
-.purchase-total {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 0;
-  font-size: 16px;
-}
-
-.purchase-total strong {
-  font-size: 21px;
-}
-
-@media (max-width: 600px) {
-  .purchase-row {
-    grid-template-columns: minmax(0, 1fr) auto 30px;
-    gap: 6px;
-  }
-
-  .purchase-total strong {
-    font-size: 18px;
-  }
-}
-
-
-/* ========================================
-   17. Navigasi horizontal
-======================================== */
-
-.tabs {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  align-items: stretch;
-  gap: 8px;
-  overflow-x: auto;
-  white-space: nowrap;
-  padding-top: 16px;
-  padding-bottom: 16px;
-  scrollbar-width: thin;
-}
-
-.tabs .tab {
-  flex: 1 0 auto;
-  min-width: max-content;
-  text-align: center;
-  border-radius: 5px;
-  padding: 11px 18px;
-  font-size: clamp(14px, 1.5vw, 18px);
-}
-
-.tabs .tab.active:before {
-  content: none;
-}
-
-
-/* ========================================
-   18. Formulir pelanggan
-======================================== */
-
-.customer-field > label {
-  margin-bottom: 6px;
-}
-
-.customer-entry-row {
-  display: flex;
-  align-items: stretch;
-  gap: 8px;
-}
-
-.customer-entry-row input {
-  flex: 1;
-  min-width: 0;
-  width: 100%;
-  padding: 11px;
-  border: 1px solid #aeb9bd;
-  border-radius: 4px;
-  background: #fff;
-  color: var(--ink);
-}
-
-.add-customer {
-  flex: 0 0 44px;
-  width: 44px;
-  padding: 5px;
-  font-size: 27px;
-  line-height: 1;
-  color: #087eaf;
-  border-color: #079fe0;
-}
-
-.customer-form {
-  margin-top: 10px;
-  padding: 12px;
-  border: 1px solid var(--line);
-  border-radius: 7px;
-  background: #f8fcfd;
-}
-
-.customer-form label {
-  margin: 8px 0;
-  font-size: 13px;
-}
-
-.customer-form input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #aeb9bd;
-  border-radius: 4px;
-  background: #fff;
-}
-
-.customer-form-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 10px;
-}
-
-.customer-form-actions button {
-  flex: 1;
-}
-
-
-/* ========================================
-   19. Penyesuaian navigasi dan pelanggan HP
-======================================== */
-
-@media (max-width: 600px) {
-  .tabs {
     flex-direction: row;
     gap: 6px;
     padding: 10px 12px;
     margin: 0;
     overflow-x: auto;
   }
-
   .tabs .tab {
     flex: 0 0 auto;
     width: auto;
@@ -1160,21 +787,173 @@ footer {
     padding: 9px 12px;
     font-size: 14px;
   }
-
+  .page {
+    padding: 10px 12px 24px;
+  }
+  .section-head {
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .section-head h2, h2 {
+    font-size: 21px;
+  }
+  .section-head p {
+    font-size: 12px;
+  }
+  .section-head button {
+    padding: 8px;
+    font-size: 12px;
+  }
+  .product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+  .product-photo {
+    height: 125px;
+  }
+  .product-info {
+    padding: 10px;
+  }
+  .product-card h3 {
+    font-size: 14px;
+    line-height: 1.25;
+    margin-bottom: 6px;
+  }
+  .product-title-row {
+    display: block;
+  }
+  .product-title-row .stock {
+    margin: 2px 0 4px;
+    font-size: 10px;
+  }
+  .product-card p {
+    font-size: 11px;
+    line-height: 1.35;
+    min-height: 30px;
+  }
+  .product-card .price {
+    font-size: 14px;
+    margin-top: 8px;
+  }
+  .checkout-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .panel {
+    padding: 13px;
+  }
+  .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 9px;
+  }
+  .form-grid .wide {
+    grid-column: 1 / -1;
+  }
+  .form-grid label {
+    font-size: 12px;
+  }
+  .form-grid input, .form-grid select, .totals input, .filters input, .filters select {
+    padding: 10px;
+    font-size: 14px;
+  }
+  .align-end {
+    grid-column: 1 / -1;
+    padding-bottom: 8px;
+  }
+  .filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .filters label {
+    min-width: 0;
+    font-size: 12px;
+  }
+  .filters button {
+    width: 100%;
+    align-self: end;
+  }
+  .metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .metric {
+    padding: 11px;
+    gap: 7px;
+  }
+  .metric span {
+    font-size: 11px;
+  }
+  .metric strong {
+    font-size: 16px;
+  }
+  .metric small {
+    font-size: 10px;
+    line-height: 1.35;
+  }
+  .progress-labels {
+    flex-direction: column;
+    gap: 5px;
+  }
+  .comparison > div {
+    display: block;
+  }
+  .bars {
+    gap: 5px;
+  }
+  .bar-col {
+    min-width: 35px;
+    font-size: 9px;
+  }
+  .receipt-card {
+    padding: 20px 14px;
+  }
+  .receipt-actions {
+    flex-direction: column;
+  }
+  .table-scroll {
+    margin: 0 -4px;
+  }
+  table {
+    min-width: 520px;
+  }
+  footer {
+    padding: 16px 12px;
+  }
   .customer-entry-row input {
     padding: 10px;
   }
-
   .add-customer {
     flex-basis: 42px;
     width: 42px;
   }
-
   .customer-form-actions {
     flex-direction: row;
   }
-
   .customer-form-actions button {
     min-width: 120px;
+  }
+  .product-analysis-panel {
+    padding: 12px;
+  }
+  .analysis-table {
+    min-width: 590px;
+  }
+}
+
+@media(min-width: 601px) and (max-width: 850px) {
+  .product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .product-photo {
+    height: 160px;
+  }
+  .tabs {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+  .tab {
+    flex: 1;
+    min-width: 0;
   }
 }
