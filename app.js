@@ -3,7 +3,7 @@
  * Isi API_URL dengan URL Web App Apps Script setelah deployment. 
  */
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbzvryqvZhgse1n2mH3YfVVJTYQIN5_pWVSIeeTMnF86y-DvkZj0SjSdO82DzA3SUM8Ogw/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbw7M3eG10RhHPbFYJf21Wlj_KI2RT_hZ5RMj6ortklPyt3bD38kzg-KjROozjghHXXxaQ/exec';
 
 const $ = id => document.getElementById(id);
 
