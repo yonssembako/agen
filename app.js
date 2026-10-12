@@ -154,6 +154,7 @@ function showProductSearchResults() {
   $('itemSelect').value = '';
   updateSelectedProduct();
   if (!q) { results.classList.add('hidden'); results.innerHTML = ''; return; }
+  if (!state.products.length) { results.innerHTML = '<div class="search-empty">Data barang belum termuat. Muat ulang aplikasi dan periksa koneksi.</div>'; results.classList.remove('hidden'); return; }
   const matches = state.products.filter(p => Number(p.stok) > 0 && String(p.nama || '').toLocaleLowerCase('id').includes(q)).slice(0, 30);
   results.innerHTML = matches.length ? matches.map(p => `<button type="button" class="search-result" data-product-id="${esc(p.id)}"><strong>${esc(p.nama)}</strong><small>Stok: ${esc(p.stok)} ${esc(p.satuan || '')} · ${rupiah(p.harga)}</small></button>`).join('') : '<div class="search-empty">Barang tidak ditemukan.</div>';
   results.classList.remove('hidden');
@@ -296,6 +297,7 @@ function showPurchaseProductSearchResults() {
   $('purchaseItem').value = '';
   $('purchasePrice').value = '';
   if (!q) { results.classList.add('hidden'); results.innerHTML = ''; return; }
+  if (!state.products.length) { results.innerHTML = '<div class="search-empty">Data barang belum termuat. Muat ulang aplikasi dan periksa koneksi.</div>'; results.classList.remove('hidden'); return; }
   const matches = state.products.filter(p => String(p.nama || '').toLocaleLowerCase('id').includes(q)).slice(0, 30);
   results.innerHTML = matches.length ? matches.map(p => `<button type="button" class="search-result" data-purchase-product-id="${esc(p.id)}"><strong>${esc(p.nama)}</strong><small>Stok saat ini: ${esc(p.stok)} ${esc(p.satuan || '')} · Harga jual: ${rupiah(p.harga)}</small></button>`).join('') : '<div class="search-empty">Barang tidak ditemukan.</div>';
   results.classList.remove('hidden');
@@ -394,6 +396,7 @@ function showSupplierSearchResults() {
   if (!input || !results) return;
   const q = input.value.trim().toLocaleLowerCase('id');
   if (!q) { results.classList.add('hidden'); results.innerHTML = ''; return; }
+  if (!state.suppliers.length) { results.innerHTML = '<div class="search-empty">Data pemasok belum termuat atau belum ada di data pemasok.</div>'; results.classList.remove('hidden'); return; }
   const matches = state.suppliers.filter(s => String(s.nama || '').toLocaleLowerCase('id').includes(q)).slice(0, 30);
   results.innerHTML = matches.length ? matches.map(s => `<button type="button" class="search-result" data-supplier-name="${esc(s.nama)}">${esc(s.nama)}</button>`).join('') : '<div class="search-empty">Pemasok tidak ditemukan.</div>';
   results.classList.remove('hidden');
@@ -426,6 +429,7 @@ function showCustomerSearchResults() {
   if (!input || !results) return;
   const q = input.value.trim().toLocaleLowerCase('id');
   if (!q) { results.classList.add('hidden'); results.innerHTML = ''; return; }
+  if (!state.customers.length) { results.innerHTML = '<div class="search-empty">Data pelanggan belum termuat atau belum ada di data pelanggan.</div>'; results.classList.remove('hidden'); return; }
   const matches = state.customers.filter(c => String(c.nama || '').toLocaleLowerCase('id').includes(q)).slice(0, 30);
   results.innerHTML = matches.length ? matches.map(c => `<button type="button" class="search-result" data-customer-name="${esc(c.nama)}">${esc(c.nama)}</button>`).join('') : '<div class="search-empty">Pelanggan tidak ditemukan.</div>';
   results.classList.remove('hidden');
