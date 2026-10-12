@@ -957,3 +957,38 @@ footer {
     min-width: 0;
   }
 }
+
+/* Pencarian otomatis pelanggan dan barang */
+.customer-field, .product-search-wrap, .supplier-field, .purchase-product-search-wrap { position: relative; }
+.search-results {
+  position: absolute;
+  z-index: 1000;
+  top: calc(100% - 2px);
+  left: 0;
+  right: 0;
+  max-height: 260px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid var(--line, #d7e0e5);
+  border-radius: 8px;
+  box-shadow: 0 8px 22px rgba(0,0,0,.12);
+}
+.search-result {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-bottom: 1px solid #edf0f2;
+  border-radius: 0;
+  background: #fff;
+  color: #17252c;
+  text-align: left;
+  cursor: pointer;
+}
+.search-result:hover, .search-result:focus { background: #eef7fa; }
+.search-result small { color: #60727a; font-size: 12px; }
+.search-empty { padding: 12px; color: #60727a; font-size: 13px; }
+.visually-hidden { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0,0,0,0) !important; white-space: nowrap !important; border: 0 !important; }
