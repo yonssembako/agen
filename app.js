@@ -3,7 +3,7 @@
  * Isi API_URL dengan URL Web App Apps Script setelah deployment. 
  */
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbwrAhtIU8H1yWUXTEdIEhAVlq1Y_FMuARA7ERTZYetlAsCOp8s4dcTb2SMpyd7dapFdQg/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzvryqvZhgse1n2mH3YfVVJTYQIN5_pWVSIeeTMnF86y-DvkZj0SjSdO82DzA3SUM8Ogw/exec';
 
 const $ = id => document.getElementById(id);
 
@@ -61,48 +61,33 @@ function api(action, data = {}) {
 
 $('loginForm').addEventListener('submit', async e => {
   e.preventDefault();
-
-  const passwordInput = $('password');
+  // Jangan mengubah password yang dimasukkan; cocokkan persis dengan Script Properties.
+  state.password = $('password').value;
   const message = $('loginMessage');
-  const button = $('loginForm').querySelector(
-    'button[type="submit"]'
-  );
-
-  state.password = passwordInput.value;
-  message.textContent = 'Memeriksa password...';
-  button.disabled = true;
+  const submitButton = $('loginForm').querySelector('button[type="submit"]');
+  submitButton.disabled = true;
+  message.textContent = 'Memeriksa password…';
 
   try {
-    const result = await api('login');
-
-    if (!result || result.ok !== true) {
-      throw new Error(
-        result?.error || result?.message || 'Login gagal.'
-      );
-    }
-
-    message.textContent = 'Login berhasil. Membuka menu...';
-
+    await api('login');
     $('loginScreen').classList.add('hidden');
     $('app').classList.remove('hidden');
+    message.textContent = '';
 
+    // Kesalahan saat memuat data setelah login tidak membatalkan autentikasi.
     await Promise.allSettled([
       loadProducts(),
       loadCustomers(),
       loadSuppliers(),
       loadDashboard()
     ]);
-
-    message.textContent = '';
-
   } catch (err) {
-    message.textContent =
-      'Login gagal: ' +
-      (err?.message || String(err));
-
-    console.error('Kesalahan login:', err);
+    state.password = '';
+    $('password').value = '';
+    message.textContent = (err && err.message ? err.message : String(err)) +
+      ' Periksa KASIR_PASSWORD di Apps Script > Project Settings > Script properties, dan pastikan Web App sudah di-deploy ke versi terbaru.';
   } finally {
-    button.disabled = false;
+    submitButton.disabled = false;
   }
 });
 $('logoutBtn').onclick = () => {
@@ -188,7 +173,7 @@ $('addItem').onclick = () => {
     state.cart.push({ id: p.id, nama: p.nama, satuan: p.satuan || 'unit', harga: Number(p.harga), qty });
   }
   
-  $('itemQty').value = '0';
+  $('itemQty').value = '';
   renderCart();
 };
 
@@ -335,12 +320,21 @@ $('savePurchase').onclick = async () => {
 };
 
 async function loadCustomers() {
+  const select = $('customerName');
+  const pilihanLama = select.value;
   try {
     const r = await api('customers');
     state.customers = r.customers || [];
-    $('customerOptions').innerHTML = state.customers.map(c => `<option value="${esc(c.nama)}">`).join('');
+    select.innerHTML =
+      '<option value="">Pelanggan Umum</option>' +
+      state.customers.map(c =>
+        `<option value="${esc(c.nama)}">${esc(c.nama)}</option>`
+      ).join('');
+    if (state.customers.some(c => c.nama === pilihanLama)) {
+      select.value = pilihanLama;
+    }
   } catch (e) {
-    console.warn(e.message);
+    console.warn('Gagal memuat pelanggan:', e.message);
   }
 }
 
