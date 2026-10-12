@@ -121,47 +121,31 @@
         <div class="panel">
           <div class="form-grid">
             <div class="wide customer-field">
-  <label for="customerName">Nama pelanggan</label>
+              <label for="customerName">Nama pelanggan</label>
+              <div class="customer-entry-row">
+                <select id="customerName">
+                  <option value="">Pelanggan Umum</option>
+                </select>
+                <button id="addCustomerBtn" class="secondary add-customer" type="button" title="Tambah data pelanggan" aria-label="Tambah data pelanggan">+</button>
+              </div>
 
-  <div class="customer-entry-row">
-    <select id="customerName">
-      <option value="">Pelanggan Umum</option>
-    </select>
-
-    <button
-      id="addCustomerBtn"
-      class="secondary add-customer"
-      type="button"
-      title="Tambah data pelanggan"
-      aria-label="Tambah data pelanggan"
-    >+</button>
-  </div>
-
-  <div id="customerForm" class="customer-form hidden">
-    <label>Nama pelanggan baru
-      <input id="newCustomerName" placeholder="Nama lengkap">
-    </label>
-
-    <label>No. WhatsApp (opsional)
-      <input id="newCustomerWa" inputmode="tel" placeholder="08xxxxxxxxxx">
-    </label>
-
-    <label>Alamat (opsional)
-      <input id="newCustomerAddress" placeholder="Alamat pelanggan">
-    </label>
-
-    <div class="customer-form-actions">
-      <button id="saveCustomerBtn" class="primary" type="button">
-        Simpan pelanggan
-      </button>
-      <button id="cancelCustomerBtn" class="secondary" type="button">
-        Batal
-      </button>
-    </div>
-
-    <small id="customerMessage" class="muted"></small>
-  </div>
-</div>
+              <div id="customerForm" class="customer-form hidden">
+                <label>Nama pelanggan baru
+                  <input id="newCustomerName" placeholder="Nama lengkap">
+                </label>
+                <label>No. WhatsApp (opsional)
+                  <input id="newCustomerWa" inputmode="tel" placeholder="08xxxxxxxxxx">
+                </label>
+                <label>Alamat (opsional)
+                  <input id="newCustomerAddress" placeholder="Alamat pelanggan">
+                </label>
+                <div class="customer-form-actions">
+                  <button id="saveCustomerBtn" class="primary" type="button">Simpan pelanggan</button>
+                  <button id="cancelCustomerBtn" class="secondary" type="button">Batal</button>
+                </div>
+                <small id="customerMessage" class="muted"></small>
+              </div>
+            </div>
 
             <label class="wide">Pilih barang
               <select id="itemSelect">
@@ -170,7 +154,7 @@
             </label>
 
             <label>Qty
-              <input id="itemQty" type="number" min="0" step="any" value="0">
+              <input id="itemQty" type="number" min="0" step="any" value="">
             </label>
 
             <label>Harga saat ini
