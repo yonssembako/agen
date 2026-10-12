@@ -3,7 +3,7 @@
  * Isi API_URL dengan URL Web App Apps Script setelah deployment. 
  */
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbzvryqvZhgse1n2mH3YfVVJTYQIN5_pWVSIeeTMnF86y-DvkZj0SjSdO82DzA3SUM8Ogw/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzc96-DGT0h43GKrnKzYBCSvXk8CcRsGXLpHHNVz6WjLcC1NICx6SS5UgKtfmZNZ0P9mw/exec';
 
 const $ = id => document.getElementById(id);
 
@@ -61,14 +61,21 @@ function api(action, data = {}) {
 
 $('loginForm').addEventListener('submit', async e => {
   e.preventDefault();
-  state.password = $('password').value.trim();$('loginMessage').textContent = 'Memeriksa password…';
-  
+  // Jangan mengubah password yang dimasukkan; cocokkan persis dengan Script Properties.
+  state.password = $('password').value;
+  const message = $('loginMessage');
+  const submitButton = $('loginForm').querySelector('button[type="submit"]');
+  submitButton.disabled = true;
+  message.textContent = 'Memeriksa password…';
+
   try {
     await api('login');
     $('loginScreen').classList.add('hidden');
-    $('app').classList.remove('hidden');$('loginMessage').textContent = '';
-    
-    await Promise.all([
+    $('app').classList.remove('hidden');
+    message.textContent = '';
+
+    // Kesalahan saat memuat data setelah login tidak membatalkan autentikasi.
+    await Promise.allSettled([
       loadProducts(),
       loadCustomers(),
       loadSuppliers(),
@@ -76,10 +83,13 @@ $('loginForm').addEventListener('submit', async e => {
     ]);
   } catch (err) {
     state.password = '';
-    $('password').value = '';$('loginMessage').textContent = err.message + ' Jika di HP bisa tetapi PC tidak, muat ulang paksa dengan Ctrl+F5 dan pastikan password sama.';
+    $('password').value = '';
+    message.textContent = (err && err.message ? err.message : String(err)) +
+      ' Periksa KASIR_PASSWORD di Apps Script > Project Settings > Script properties, dan pastikan Web App sudah di-deploy ke versi terbaru.';
+  } finally {
+    submitButton.disabled = false;
   }
 });
-
 $('logoutBtn').onclick = () => {
   state.password = '';
   state.cart = [];
@@ -562,7 +572,7 @@ function renderDashboard(r) {
   $('dailyBars').innerHTML = bars.length ? bars.map(x => `<div class="bar-col" title="${esc(x.label)}: ${rupiah(x.revenue)}"><div class="bar" style="height:${Math.max(3, Math.round(x.revenue / max * 115))}px"></div><div>${esc(x.label)}</div><div>${x.revenue ? rupiah(x.revenue) : '—'}</div></div>`).join('') : '<p class="muted">Belum ada transaksi.</p>';
   
   const products = r.products || [];
-  $('productAnalysis').innerHTML = products.length ? `<table class="analysis-table"><thead><tr><th>Produk</th><th>Qty terjual</th><th>Omzet</th><th>Estimasi laba kotor</th></tr></thead><tbody>${products.map(x => `<tr><td>${esc(x.nama)}</td><td>${Number(x.qty) \vert{}\vert{} 0}${esc(x.satuan || '')}</td><td>${rupiah(x.revenue)}</td><td>${x.grossProfit === null || x.grossProfit === undefined ? '<span class="muted">Belum ada data modal</span>' : rupiah(x.grossProfit)}</td></tr>`).join('')}</tbody></table>` : '<p class="muted">Belum ada penjualan pada periode ini.</p>';
+  $('productAnalysis').innerHTML = products.length ? `<table class="analysis-table"><thead><tr><th>Produk</th><th>Qty terjual</th><th>Omzet</th><th>Estimasi laba kotor</th></tr></thead><tbody>${products.map(x => `<tr><td>${esc(x.nama)}</td><td>${Number(x.qty) || 0}${esc(x.satuan || '')}</td><td>${rupiah(x.revenue)}</td><td>${x.grossProfit === null || x.grossProfit === undefined ? '<span class="muted">Belum ada data modal</span>' : rupiah(x.grossProfit)}</td></tr>`).join('')}</tbody></table>` : '<p class="muted">Belum ada penjualan pada periode ini.</p>';
 }
 
 formatTargetInput();
