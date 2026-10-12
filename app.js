@@ -61,33 +61,48 @@ function api(action, data = {}) {
 
 $('loginForm').addEventListener('submit', async e => {
   e.preventDefault();
-  // Jangan mengubah password yang dimasukkan; cocokkan persis dengan Script Properties.
-  state.password = $('password').value;
+
+  const passwordInput = $('password');
   const message = $('loginMessage');
-  const submitButton = $('loginForm').querySelector('button[type="submit"]');
-  submitButton.disabled = true;
-  message.textContent = 'Memeriksa password…';
+  const button = $('loginForm').querySelector(
+    'button[type="submit"]'
+  );
+
+  state.password = passwordInput.value;
+  message.textContent = 'Memeriksa password...';
+  button.disabled = true;
 
   try {
-    await api('login');
+    const result = await api('login');
+
+    if (!result || result.ok !== true) {
+      throw new Error(
+        result?.error || result?.message || 'Login gagal.'
+      );
+    }
+
+    message.textContent = 'Login berhasil. Membuka menu...';
+
     $('loginScreen').classList.add('hidden');
     $('app').classList.remove('hidden');
-    message.textContent = '';
 
-    // Kesalahan saat memuat data setelah login tidak membatalkan autentikasi.
     await Promise.allSettled([
       loadProducts(),
       loadCustomers(),
       loadSuppliers(),
       loadDashboard()
     ]);
+
+    message.textContent = '';
+
   } catch (err) {
-    state.password = '';
-    $('password').value = '';
-    message.textContent = (err && err.message ? err.message : String(err)) +
-      ' Periksa KASIR_PASSWORD di Apps Script > Project Settings > Script properties, dan pastikan Web App sudah di-deploy ke versi terbaru.';
+    message.textContent =
+      'Login gagal: ' +
+      (err?.message || String(err));
+
+    console.error('Kesalahan login:', err);
   } finally {
-    submitButton.disabled = false;
+    button.disabled = false;
   }
 });
 $('logoutBtn').onclick = () => {
