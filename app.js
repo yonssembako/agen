@@ -3,7 +3,7 @@
  * Isi API_URL dengan URL Web App Apps Script setelah deployment. 
  */
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbw7M3eG10RhHPbFYJf21Wlj_KI2RT_hZ5RMj6ortklPyt3bD38kzg-KjROozjghHXXxaQ/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxXeiefvhgMEodgkrZr_t1Q8gG66UcaBkpJ0eU1N46tm2s8Jv9OPl-PcALFDEVKkwAWUg/exec';
 
 const $ = id => document.getElementById(id);
 
@@ -141,14 +141,46 @@ function renderProducts() {
 function fillProductSelect() {
   const old = $('itemSelect').value;
   $('itemSelect').innerHTML = '<option value="">Pilih barang…</option>' + state.products.filter(p => Number(p.stok) > 0).map(p => `<option value="${esc(p.id)}">${esc(p.nama)}</option>`).join('');
-  
   if (state.products.some(p => p.id === old)) $('itemSelect').value = old;
   updateSelectedProduct();
+  if ($('itemSearch')) $('itemSearch').value = state.products.find(p => p.id === old)?.nama || '';
+}
+
+function showProductSearchResults() {
+  const input = $('itemSearch');
+  const results = $('itemSearchResults');
+  if (!input || !results) return;
+  const q = input.value.trim().toLocaleLowerCase('id');
+  $('itemSelect').value = '';
+  updateSelectedProduct();
+  if (!q) { results.classList.add('hidden'); results.innerHTML = ''; return; }
+  const matches = state.products.filter(p => Number(p.stok) > 0 && String(p.nama || '').toLocaleLowerCase('id').includes(q)).slice(0, 30);
+  results.innerHTML = matches.length ? matches.map(p => `<button type="button" class="search-result" data-product-id="${esc(p.id)}"><strong>${esc(p.nama)}</strong><small>Stok: ${esc(p.stok)} ${esc(p.satuan || '')} · ${rupiah(p.harga)}</small></button>`).join('') : '<div class="search-empty">Barang tidak ditemukan.</div>';
+  results.classList.remove('hidden');
+}
+
+if ($('itemSearch')) {
+  $('itemSearch').addEventListener('input', showProductSearchResults);
+  $('itemSearch').addEventListener('focus', showProductSearchResults);
+  $('itemSearchResults').addEventListener('click', e => {
+    const button = e.target.closest('[data-product-id]');
+    if (!button) return;
+    const p = state.products.find(x => String(x.id) === button.dataset.productId);
+    if (!p) return;
+    $('itemSelect').value = String(p.id);
+    $('itemSearch').value = p.nama;
+    $('itemSearchResults').classList.add('hidden');
+    updateSelectedProduct();
+    $('itemQty').focus();
+  });
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.product-search-wrap')) $('itemSearchResults').classList.add('hidden');
+  });
 }
 
 $('itemSelect').onchange = () => {
   updateSelectedProduct();
-  if ($('itemSelect').value)$('itemQty').focus();
+  if ($('itemSelect').value) $('itemQty').focus();
 };
 
 function updateSelectedProduct() {
@@ -174,6 +206,10 @@ $('addItem').onclick = () => {
   }
   
   $('itemQty').value = '';
+  $('itemSearch').value = '';
+  $('itemSelect').value = '';
+  $('itemSearchResults').classList.add('hidden');
+  updateSelectedProduct();
   renderCart();
 };
 
@@ -239,7 +275,7 @@ async function loadSuppliers() {
   try {
     const r = await api('suppliers');
     state.suppliers = r.suppliers || [];
-    $('supplierOptions').innerHTML = state.suppliers.map(x => `<option value="${esc(x.nama)}">`).join('');
+    // Data pemasok digunakan oleh kolom pencarian pemasok.
   } catch (e) {
     console.warn(e.message);
   }
@@ -249,6 +285,39 @@ function fillPurchaseSelect() {
   const old = $('purchaseItem').value;
   $('purchaseItem').innerHTML = '<option value="">Pilih barang…</option>' + state.products.map(p => `<option value="${esc(p.id)}">${esc(p.nama)}</option>`).join('');
   if (state.products.some(p => p.id === old)) $('purchaseItem').value = old;
+  if ($('purchaseItemSearch')) $('purchaseItemSearch').value = state.products.find(p => p.id === old)?.nama || '';
+}
+
+function showPurchaseProductSearchResults() {
+  const input = $('purchaseItemSearch');
+  const results = $('purchaseItemSearchResults');
+  if (!input || !results) return;
+  const q = input.value.trim().toLocaleLowerCase('id');
+  $('purchaseItem').value = '';
+  $('purchasePrice').value = '';
+  if (!q) { results.classList.add('hidden'); results.innerHTML = ''; return; }
+  const matches = state.products.filter(p => String(p.nama || '').toLocaleLowerCase('id').includes(q)).slice(0, 30);
+  results.innerHTML = matches.length ? matches.map(p => `<button type="button" class="search-result" data-purchase-product-id="${esc(p.id)}"><strong>${esc(p.nama)}</strong><small>Stok saat ini: ${esc(p.stok)} ${esc(p.satuan || '')} · Harga jual: ${rupiah(p.harga)}</small></button>`).join('') : '<div class="search-empty">Barang tidak ditemukan.</div>';
+  results.classList.remove('hidden');
+}
+
+if ($('purchaseItemSearch')) {
+  $('purchaseItemSearch').addEventListener('input', showPurchaseProductSearchResults);
+  $('purchaseItemSearch').addEventListener('focus', showPurchaseProductSearchResults);
+  $('purchaseItemSearchResults').addEventListener('click', e => {
+    const button = e.target.closest('[data-purchase-product-id]');
+    if (!button) return;
+    const p = state.products.find(x => String(x.id) === button.dataset.purchaseProductId);
+    if (!p) return;
+    $('purchaseItem').value = String(p.id);
+    $('purchaseItemSearch').value = p.nama;
+    $('purchaseItemSearchResults').classList.add('hidden');
+    $('purchasePrice').value = p ? Number(p.harga) : '';
+    $('purchaseQty').focus();
+  });
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.purchase-product-search-wrap')) $('purchaseItemSearchResults').classList.add('hidden');
+  });
 }
 
 $('purchaseItem').onchange = () => {
@@ -319,24 +388,60 @@ $('savePurchase').onclick = async () => {
   }
 };
 
+function showSupplierSearchResults() {
+  const input = $('supplierName');
+  const results = $('supplierSearchResults');
+  if (!input || !results) return;
+  const q = input.value.trim().toLocaleLowerCase('id');
+  if (!q) { results.classList.add('hidden'); results.innerHTML = ''; return; }
+  const matches = state.suppliers.filter(s => String(s.nama || '').toLocaleLowerCase('id').includes(q)).slice(0, 30);
+  results.innerHTML = matches.length ? matches.map(s => `<button type="button" class="search-result" data-supplier-name="${esc(s.nama)}">${esc(s.nama)}</button>`).join('') : '<div class="search-empty">Pemasok tidak ditemukan.</div>';
+  results.classList.remove('hidden');
+}
+
+$('supplierName').addEventListener('input', showSupplierSearchResults);
+$('supplierName').addEventListener('focus', showSupplierSearchResults);
+$('supplierSearchResults').addEventListener('click', e => {
+  const button = e.target.closest('[data-supplier-name]');
+  if (!button) return;
+  $('supplierName').value = button.dataset.supplierName;
+  $('supplierSearchResults').classList.add('hidden');
+});
+document.addEventListener('click', e => {
+  if (!e.target.closest('.supplier-field')) $('supplierSearchResults').classList.add('hidden');
+});
+
 async function loadCustomers() {
-  const select = $('customerName');
-  const pilihanLama = select.value;
   try {
     const r = await api('customers');
     state.customers = r.customers || [];
-    select.innerHTML =
-      '<option value="">Pelanggan Umum</option>' +
-      state.customers.map(c =>
-        `<option value="${esc(c.nama)}">${esc(c.nama)}</option>`
-      ).join('');
-    if (state.customers.some(c => c.nama === pilihanLama)) {
-      select.value = pilihanLama;
-    }
   } catch (e) {
-    console.warn('Gagal memuat pelanggan:', e.message);
+    console.warn(e.message);
   }
 }
+
+function showCustomerSearchResults() {
+  const input = $('customerName');
+  const results = $('customerSearchResults');
+  if (!input || !results) return;
+  const q = input.value.trim().toLocaleLowerCase('id');
+  if (!q) { results.classList.add('hidden'); results.innerHTML = ''; return; }
+  const matches = state.customers.filter(c => String(c.nama || '').toLocaleLowerCase('id').includes(q)).slice(0, 30);
+  results.innerHTML = matches.length ? matches.map(c => `<button type="button" class="search-result" data-customer-name="${esc(c.nama)}">${esc(c.nama)}</button>`).join('') : '<div class="search-empty">Pelanggan tidak ditemukan.</div>';
+  results.classList.remove('hidden');
+}
+
+$('customerName').addEventListener('input', showCustomerSearchResults);
+$('customerName').addEventListener('focus', showCustomerSearchResults);
+$('customerSearchResults').addEventListener('click', e => {
+  const button = e.target.closest('[data-customer-name]');
+  if (!button) return;
+  $('customerName').value = button.dataset.customerName;
+  $('customerSearchResults').classList.add('hidden');
+});
+document.addEventListener('click', e => {
+  if (!e.target.closest('.customer-field')) $('customerSearchResults').classList.add('hidden');
+});
 
 $('addCustomerBtn').onclick = () => {
   $('customerForm').classList.toggle('hidden');$('customerMessage').textContent = '';
@@ -368,6 +473,7 @@ $('saveCustomerBtn').onclick = async () => {
     
     await loadCustomers();
     $('customerName').value = r.customer.nama;
+    $('customerSearchResults').classList.add('hidden');
     $('customerForm').classList.add('hidden');
     $('newCustomerName').value = '';$('newCustomerWa').value = '';
     $('newCustomerAddress').value = '';$('customerMessage').textContent = 'Pelanggan berhasil disimpan.';
