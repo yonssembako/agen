@@ -68,12 +68,14 @@
       </div>
       <div class="panel">
         <div class="form-grid">
-          <label class="wide">Nama pemasok
-            <input id="supplierName" list="supplierOptions" placeholder="Nama pemasok / agen" required>
-            <datalist id="supplierOptions"></datalist>
+          <label class="wide supplier-field">Nama pemasok
+            <input id="supplierName" autocomplete="off" placeholder="Ketik nama pemasok untuk mencari..." required>
+            <div id="supplierSearchResults" class="search-results hidden"></div>
           </label>
-          <label class="wide">Barang
-            <select id="purchaseItem">
+          <label class="wide purchase-product-search-wrap">Nama barang
+            <input id="purchaseItemSearch" autocomplete="off" placeholder="Ketik nama barang untuk mencari...">
+            <div id="purchaseItemSearchResults" class="search-results hidden"></div>
+            <select id="purchaseItem" class="visually-hidden" aria-hidden="true" tabindex="-1">
               <option value="">Pilih barang…</option>
             </select>
           </label>
@@ -123,9 +125,8 @@
             <div class="wide customer-field">
               <label for="customerName">Nama pelanggan</label>
               <div class="customer-entry-row">
-                <select id="customerName">
-                  <option value="">Pelanggan Umum</option>
-                </select>
+                <input id="customerName" autocomplete="off" placeholder="Ketik nama pelanggan untuk mencari...">
+                <div id="customerSearchResults" class="search-results hidden"></div>
                 <button id="addCustomerBtn" class="secondary add-customer" type="button" title="Tambah data pelanggan" aria-label="Tambah data pelanggan">+</button>
               </div>
 
@@ -147,11 +148,14 @@
               </div>
             </div>
 
-            <label class="wide">Pilih barang
-              <select id="itemSelect">
+            <div class="wide product-search-wrap">
+              <label for="itemSearch">Pilih barang</label>
+              <input id="itemSearch" autocomplete="off" placeholder="Ketik nama barang untuk mencari...">
+              <div id="itemSearchResults" class="search-results hidden"></div>
+              <select id="itemSelect" class="visually-hidden" aria-hidden="true" tabindex="-1">
                 <option value="">Pilih barang…</option>
               </select>
-            </label>
+            </div>
 
             <label>Qty
               <input id="itemQty" type="number" min="0" step="any" value="">
