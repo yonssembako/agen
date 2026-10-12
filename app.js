@@ -3,7 +3,7 @@
  * Isi API_URL dengan URL Web App Apps Script setelah deployment. 
  */
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbxXeiefvhgMEodgkrZr_t1Q8gG66UcaBkpJ0eU1N46tm2s8Jv9OPl-PcALFDEVKkwAWUg/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwIX-_eNoWcfPNqYAQMLXe0i_7CUAfkyXLNSA30SGY6BBTfA4e10GAVj1vi0qqRppdW3g/exec';
 
 const $ = id => document.getElementById(id);
 
@@ -519,76 +519,92 @@ function receiptText(r) {
 }
 
 async function makeReceiptJpg(r) {
-  const width = 900, pad = 48, contentWidth = width - pad * 2, canvas = document.createElement('canvas');
-  let ctx = canvas.getContext('2d');
-  
-  const rows = [];
-  const add = (text, size = 27, bold = false, align = 'left', gap = 13) => rows.push({ text: String(text), size, bold, align, gap });
-  
-  add('YONS AGEN', 40, true, 'center', 12);
-  add('Jl. Parungseah RT.04/RW.06, Sukabumi', 22, false, 'center', 8);
-  add('HP 089614021972', 22, false, 'center', 22);
-  add('STRUK BELANJA', 28, true, 'center', 24);
-  add('No. transaksi: ' + r.id, 23, false, 'left', 9);
-  add('Tanggal: ' + r.tanggal, 23, false, 'left', 9);
-  add('Pelanggan: ' + r.pelanggan, 23, false, 'left', 18);
-  add('----------------------------------------------', 22, false, 'center', 10);
-  
-  r.items.forEach(x => {
-    add(x.nama, 25, true, 'left', 7);
-    add(`${x.qty} ${x.satuan} × ${rupiah(x.harga)} = ${rupiah(x.jumlah)}`, 22, false, 'left', 14);
-  });
-  
-  add('----------------------------------------------', 22, false, 'center', 12);
-  add('TOTAL: ' + rupiah(r.total), 30, true, 'left', 13);
-  add('Bayar: ' + rupiah(r.bayar), 24, false, 'left', 10);
-  add('Kembalian: ' + rupiah(r.kembalian), 24, false, 'left', 22);
-  add('Terima kasih telah berbelanja.', 23, false, 'center', 12);
-  
-  const wrapped = [];
-  for (const row of rows) {
-    ctx.font = `${row.bold ? 'bold ' : ''}${row.size}px Arial`;
-    const words = row.text.split(' ');
-    let line = '';
-    
-    for (const word of words) {
-      const test = line ? line + ' ' + word : word;
-      if (ctx.measureText(test).width > contentWidth && line) {
-        wrapped.push({ ...row, text: line });
-        line = word;
-      } else {
-        line = test;
-      }
-    }
-    wrapped.push({ ...row, text: line });
-    wrapped.push({ size: 1, gap: row.gap, spacer: true });
+  if (typeof html2canvas !== 'function') {
+    throw new Error('Fitur pembuat gambar belum termuat. Periksa koneksi internet lalu muat ulang aplikasi.');
   }
-  
-  let height = pad * 2;
-  wrapped.forEach(x => height += x.spacer ? x.gap : x.size + 9);
-  
-  canvas.width = width;
-  canvas.height = height;
-  ctx = canvas.getContext('2d');
-  ctx.fillStyle = '#fff';
-  ctx.fillRect(0, 0, width, height);
-  
-  let y = pad;
-  ctx.fillStyle = '#172126';
-  
-  wrapped.forEach(row => {
-    if (row.spacer) {
-      y += row.gap;
-      return;
-    }
-    ctx.font = `${row.bold ? 'bold ' : ''}${row.size}px Arial`;
-    ctx.textAlign = row.align;
-    const x = row.align === 'center' ? width / 2 : (row.align === 'right' ? width - pad : pad);
-    ctx.fillText(row.text, x, y + row.size);
-    y += row.size + 9;
+
+  // Render salinan khusus dengan lebar dan tipografi seperti struk di HP.
+  // Elemen di layar tidak diubah, sehingga tampilan aplikasi tetap aman.
+  const source = $('receiptContent');
+  const exportWrap = document.createElement('div');
+  exportWrap.setAttribute('aria-hidden', 'true');
+  Object.assign(exportWrap.style, {
+    position: 'fixed', left: '-10000px', top: '0', width: '360px',
+    boxSizing: 'border-box', padding: '18px 14px', background: '#ffffff',
+    color: '#17324d', fontFamily: 'Arial, Helvetica, sans-serif',
+    fontSize: '12px', lineHeight: '1.35', overflow: 'visible', zIndex: '-1'
   });
-  
-  return new Promise((resolve, reject) => canvas.toBlob(blob => blob ? resolve(new File([blob], `Struk-Yons-Agen-${r.id}.jpg`, { type: 'image/jpeg' })) : reject(new Error('Gagal membuat gambar struk.')), 'image/jpeg', 0.94));
+  const clone = source.cloneNode(true);
+  clone.removeAttribute('id');
+  Object.assign(clone.style, {
+    display: 'block', width: '100%', maxWidth: 'none', margin: '0',
+    padding: '0', boxSizing: 'border-box', background: '#ffffff',
+    color: '#17324d', fontFamily: 'Arial, Helvetica, sans-serif',
+    fontSize: '12px', lineHeight: '1.35'
+  });
+  exportWrap.appendChild(clone);
+  document.body.appendChild(exportWrap);
+
+  try {
+    const title = clone.querySelector('.receipt-title');
+    if (title) Object.assign(title.style, {
+      textAlign: 'center', padding: '0 0 12px', margin: '0 0 8px',
+      borderBottom: '1px dashed #aab4bd'
+    });
+    const h2 = clone.querySelector('.receipt-title h2');
+    if (h2) Object.assign(h2.style, {
+      fontSize: '20px', lineHeight: '1.2', margin: '0 0 5px',
+      fontWeight: '700', letterSpacing: '1px', color: '#17324d'
+    });
+    const titleP = clone.querySelector('.receipt-title p');
+    if (titleP) Object.assign(titleP.style, { fontSize: '12px', margin: '12px 0 0', fontWeight: '400' });
+
+    clone.querySelectorAll('.receipt-line').forEach((el, i) => {
+      Object.assign(el.style, {
+        display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
+        gap: '10px', margin: i < 3 ? '6px 0' : '5px 0', fontSize: '12px',
+        lineHeight: '1.35', color: '#17324d'
+      });
+      const spans = el.querySelectorAll('span, strong');
+      if (spans.length > 1) {
+        spans[0].style.flex = '0 0 auto';
+        spans[1].style.textAlign = 'right';
+        spans[1].style.overflowWrap = 'anywhere';
+      }
+    });
+
+    const items = clone.querySelector('.receipt-items');
+    if (items) Object.assign(items.style, {
+      borderTop: '1px dashed #aab4bd', borderBottom: '1px dashed #aab4bd',
+      padding: '8px 0', margin: '10px 0'
+    });
+    clone.querySelectorAll('.receipt-items p').forEach(p => {
+      Object.assign(p.style, { margin: '6px 0', fontSize: '12px', lineHeight: '1.35', color: '#17324d' });
+      const small = p.querySelector('small');
+      if (small) Object.assign(small.style, { display: 'block', fontSize: '10px', lineHeight: '1.4', color: '#17324d' });
+    });
+    clone.querySelectorAll('.receipt-items small span').forEach(el => {
+      el.style.float = 'right';
+      el.style.marginLeft = '8px';
+    });
+    const footer = clone.querySelector('p[style*="text-align:center"]');
+    if (footer) Object.assign(footer.style, { textAlign: 'center', margin: '14px 0 0', fontSize: '12px', color: '#17324d' });
+
+    // Tunggu font/layout stabil sebelum menangkap gambar.
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    const canvas = await html2canvas(exportWrap, {
+      backgroundColor: '#ffffff', scale: 2, useCORS: true,
+      logging: false, width: 360, windowWidth: 360, scrollX: 0, scrollY: 0
+    });
+    return await new Promise((resolve, reject) => {
+      canvas.toBlob(blob => {
+        if (!blob) return reject(new Error('Gagal membuat gambar struk.'));
+        resolve(new File([blob], `Struk-Yons-Agen-${r.id}.jpg`, { type: 'image/jpeg' }));
+      }, 'image/jpeg', 0.92);
+    });
+  } finally {
+    exportWrap.remove();
+  }
 }
 
 $('shareReceipt').onclick = async () => {
